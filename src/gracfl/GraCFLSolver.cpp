@@ -32,18 +32,24 @@ namespace gracfl
         if (config_.model_ == "gracfl") {
             if (config_.mode_ == "serial") {
                 if (config_.direct_ == "fw") {
-                    FWGracfl* graph = new FWGracfl(config_.graphfile_, *grammar_);
+                    FWGracfl* graph = new FWGracfl(config_, *grammar_);
                     return graph;
                 }
                 else if (config_.direct_ == "bw") {
-                    BWGracfl* graph = new BWGracfl(config_.graphfile_, *grammar_);
+                    BWGracfl* graph = new BWGracfl(config_, *grammar_);
                     return graph;
                 }
                 else if (config_.direct_ == "bi") {
-                    BIGracfl* graph = new BIGracfl(config_.graphfile_, *grammar_);
+                    BIGracfl* graph = new BIGracfl(config_, *grammar_);
                     return graph;
                 }                        
             } 
+            else if (config_.mode_ == "parallel") {
+                if (config_.direct_ == "fw") {
+                    FWGracflParallel* graph = new FWGracflParallel(config_, *grammar_);
+                    return graph;
+                }
+            }
             // else { // parallel
             //     if (config_.direct_ == "fw") 
             //     {     

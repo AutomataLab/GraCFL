@@ -3,6 +3,7 @@
 #include "utils/Graph.hpp"
 #include "utils/Edges.hpp"
 #include "utils/Types.hpp"
+#include "utils/Config.hpp"
 
 namespace gracfl 
 {
@@ -19,13 +20,15 @@ namespace gracfl
         std::vector<std::vector<BufferEdge>> inEdges_; 
         /// Duplicate edge-check datastructure: [source][label] -> set of destinations
         std::vector<std::vector<std::unordered_set<ull>>> hashset_;
+        /// Solver configuration parameters
+        Config config_;
     public:
         /**
          * @brief Constructor allocates adjacency lists + hashset, and reads initial edges.
-         * @param graphfilepath Path to the graph file to load.
+         * @param config Solver configurations.
          * @param grammar       Grammar describing the CFL rules.
          */
-        BWGracfl(std::string& graphfilepath, const Grammar& grammar);
+        BWGracfl(Config& config, const Grammar& grammar);
 
         /**
          * @brief Executes the full bidirectional CFL-reachability analysis.

@@ -12,3 +12,4 @@ build/*
 graphs_grammars
 *.txt
 temp*/*
+run*

@@ -14,6 +14,7 @@
 #include "gracfl/BIGracfl.hpp"
 #include "gracfl/BWGracfl.hpp"
 #include "gracfl/FWGracfl.hpp"
+#include "gracfl/FWGracflParallel.hpp"
 
 
 namespace gracfl

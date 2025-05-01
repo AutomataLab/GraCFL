@@ -4,9 +4,10 @@
 namespace gracfl 
 {
     // Definition of class BWGracfl
-    BWGracfl::BWGracfl(std::string& graphfilepath, const Grammar& grammar)
-    : Graph(graphfilepath, grammar)
+    BWGracfl::BWGracfl(Config& config, const Grammar& grammar)
+    : Graph(config.graphfile_, grammar)
     {
+        config_ = config;
         inEdges_.assign(grammar.getLabelSize(), std::vector<BufferEdge>(getNodeSize()));
         hashset_.assign(getNodeSize(), std::vector<std::unordered_set<ull>>(grammar.getLabelSize(), std::unordered_set<ull>()));
         addInitialEdges();

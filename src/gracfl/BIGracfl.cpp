@@ -4,9 +4,10 @@
 namespace gracfl 
 {
 
-    BIGracfl::BIGracfl(std::string& graphfilepath, const Grammar& grammar)
-    : Graph(graphfilepath, grammar)
+    BIGracfl::BIGracfl(Config& config, const Grammar& grammar)
+    : Graph(config.graphfile_, grammar)
     {
+        config_ = config;
         outEdges_.assign(grammar.getLabelSize(), std::vector<BufferEdge>(getNodeSize()));
         inEdges_.assign(grammar.getLabelSize(), std::vector<BufferEdge>(getNodeSize()));
         hashset_.assign(getNodeSize(), std::vector<std::unordered_set<ull>>(grammar.getLabelSize(), std::unordered_set<ull>()));

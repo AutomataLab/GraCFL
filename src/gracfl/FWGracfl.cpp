@@ -3,16 +3,17 @@
 
 namespace gracfl 
 {
-    FWGracfl::FWGracfl(std::string& graphfilepath, const Grammar& grammar)
-    : Graph(graphfilepath, grammar)
+    FWGracfl::FWGracfl(Config& config, const Grammar& grammar)
+    : Graph(config.graphfile_, grammar)
     {
+        config_ =  config;
         outEdges_.assign(grammar.getLabelSize(), std::vector<BufferEdge>(getNodeSize()));
         hashset_.assign(getNodeSize(), std::vector<std::unordered_set<ull>>(grammar.getLabelSize(), std::unordered_set<ull>()));
         addInitialEdges();
     }
     
     void  FWGracfl::solve(const Grammar& grammar)
-    {
+    { 
         addAllSelfEdges(grammar); // add epsilon edges
         uint itr = 0;
         bool terminate;
