@@ -8,13 +8,13 @@
 namespace gracfl 
 {
     /**
-     * @class BIGracfl
+     * @class SolverBIGram
      * @brief  Bidirectional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
      * Inherits from Graph and adds support for bidirectional edge derivations.
      * Maintains separate out-edges and in-edges adjacency lists, as well as a hashset to avoid duplicates.
      */
-    class BIGracfl : public Graph
+    class SolverBIGram : public Graph
     {
         /// Adjacency list for outgoing edges: [label][source_vtx].vertexList
         std::vector<std::vector<BufferEdge>> outEdges_;
@@ -30,7 +30,7 @@ namespace gracfl
          * @param config Solver configurations.
          * @param grammar       Grammar describing the CFL rules.
          */
-        BIGracfl(Config& config, const Grammar& grammar);
+        SolverBIGram(Config& config, const Grammar& grammar);
 
         /**
          * @brief Executes the full bidirectional CFL-reachability analysis.

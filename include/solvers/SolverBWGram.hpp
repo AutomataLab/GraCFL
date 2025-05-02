@@ -8,13 +8,13 @@
 namespace gracfl 
 {
     /**
-     * @class BWGracfl
+     * @class SolverBWGram
      * @brief  Backward directional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
      * Inherits from Graph and adds support for backward directional edge derivations.
      * Maintains  in-edges adjacency list, as well as a hashset to avoid duplicates.
      */
-    class BWGracfl : public Graph 
+    class SolverBWGram : public Graph 
     {
         /// Adjacency list for incoming edges: [label][destination_vtx].vertexList
         std::vector<std::vector<BufferEdge>> inEdges_; 
@@ -28,7 +28,7 @@ namespace gracfl
          * @param config Solver configurations.
          * @param grammar       Grammar describing the CFL rules.
          */
-        BWGracfl(Config& config, const Grammar& grammar);
+        SolverBWGram(Config& config, const Grammar& grammar);
 
         /**
          * @brief Executes the full bidirectional CFL-reachability analysis.

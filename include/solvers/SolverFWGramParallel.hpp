@@ -4,17 +4,17 @@
 #include "utils/Edges.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
-#include "FWGracfl.hpp"
+#include "SolverFWGram.hpp"
 
 namespace gracfl 
 {
     /**
-     * @class FWGracflParallel
+     * @class SolverFWGramParallel
      * @brief  Parallel Forward directional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
-     * Inherits from FWGracfl and adds support for parallel forward directional edge derivations.
+     * Inherits from SolverFWGram and adds support for parallel forward directional edge derivations.
      */
-    class FWGracflParallel : public FWGracfl 
+    class SolverFWGramParallel : public SolverFWGram 
     {
     public:
         /**
@@ -22,7 +22,7 @@ namespace gracfl
          * @param config Solver configurations.
          * @param grammar       Grammar describing the CFL rules.
          */
-        FWGracflParallel(Config& config, const Grammar& grammar);
+        SolverFWGramParallel(Config& config, const Grammar& grammar);
 
         /**
          * @brief Executes the full parallel forward-directional CFL-reachability analysis.

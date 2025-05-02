@@ -1,15 +1,15 @@
 #include <iostream>
-#include "gracfl/FWGracflParallel.hpp"
+#include "solvers/SolverFWGramParallel.hpp"
 
 namespace gracfl 
 {
-    FWGracflParallel::FWGracflParallel(Config& config, const Grammar& grammar)
-    : FWGracfl(config, grammar)
+    SolverFWGramParallel::SolverFWGramParallel(Config& config, const Grammar& grammar)
+    : SolverFWGram(config, grammar)
     {
 
     }
 
-    void  FWGracflParallel::solve(const Grammar& grammar)
+    void  SolverFWGramParallel::solve(const Grammar& grammar)
     { 
         addAllSelfEdges(grammar); // add epsilon edges
         uint itr = 0;
@@ -23,7 +23,7 @@ namespace gracfl
         } while(!terminate);
     }
 
-    void  FWGracflParallel::singleIterationParallelLabel(const Grammar& grammar, bool& terminate, uint noOfThreads)
+    void  SolverFWGramParallel::singleIterationParallelLabel(const Grammar& grammar, bool& terminate, uint noOfThreads)
     {
         for (uint g = 0; g < grammar.getLabelSize(); g++)
         {
@@ -95,7 +95,7 @@ namespace gracfl
         }
     }
 
-    void  FWGracflParallel::singleIterationParallel(const Grammar& grammar, bool& terminate, uint noOfThreads)
+    void  SolverFWGramParallel::singleIterationParallel(const Grammar& grammar, bool& terminate, uint noOfThreads)
     {
         #pragma omp parallel for schedule(static) num_threads(noOfThreads)
         for (uint i = 0; i < getNodeSize(); i++)

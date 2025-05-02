@@ -11,23 +11,23 @@
 #include "utils/Graph.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
-#include "gracfl/BIGracfl.hpp"
-#include "gracfl/BWGracfl.hpp"
-#include "gracfl/FWGracfl.hpp"
-#include "gracfl/FWGracflParallel.hpp"
+#include "solvers/SolverBIGram.hpp"
+#include "solvers/SolverBWGram.hpp"
+#include "solvers/SolverFWGram.hpp"
+#include "solvers/SolverFWGramParallel.hpp"
 
 
 namespace gracfl
 {
     /**
-     * @class GraCFLSolver
+     * @class SolverGraCFL
      * @brief Encapsulates configuration, graph loading, and execution of CFL-reachability analysis.
      *
      * Reads a normalized context-free grammar and graph according to provided configuration,
      * then applies the chosen CFL-reachability algorithm (BI, BW, or FW) in serial
      * or parallel mode.
      */
-    class GraCFLSolver 
+    class SolverGraCFL 
     {
         /// Solver configuration parameters
         Config config_;
@@ -37,16 +37,16 @@ namespace gracfl
         Graph* graph_;
     public:
         /**
-         * @brief Constructs a new GraCFLSolver with specified configuration.
+         * @brief Constructs a new SolverGraCFL with specified configuration.
          * @param config Reference to a Config object containing solver settings (graph path, grammar path, mode, threads, etc.).
          * @throws std::runtime_error if grammar or graph cannot be loaded.
          */
-        GraCFLSolver(Config& config);
+        SolverGraCFL(Config& config);
 
         /**
          * @brief Destructor: releases any allocated grammar or graph resources.
          */
-        ~GraCFLSolver();
+        ~SolverGraCFL();
 
         /**
          * @brief Processes the input graph according to the loaded grammar and model.

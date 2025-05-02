@@ -8,13 +8,13 @@
 namespace gracfl 
 {
     /**
-     * @class FWGracfl
+     * @class SolverFWGram
      * @brief  Forward directional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
      * Inherits from Graph and adds support for forward directional edge derivations.
      * Maintains out-edges adjacency list, as well as a hashset to avoid duplicates.
      */
-    class FWGracfl : public Graph 
+    class SolverFWGram : public Graph 
     {
         /// Adjacency list for outgoing edges: [label][source_vtx].vertexList
         std::vector<std::vector<BufferEdge>> outEdges_; 
@@ -28,7 +28,7 @@ namespace gracfl
          * @param config Solver configurations.
          * @param grammar       Grammar describing the CFL rules.
          */
-        FWGracfl(Config& config, const Grammar& grammar);
+        SolverFWGram(Config& config, const Grammar& grammar);
 
         /**
          * @brief Executes the full forward-directional CFL-reachability analysis.

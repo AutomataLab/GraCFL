@@ -2,11 +2,11 @@
 #include <chrono>     
 #include <stdexcept>  
 #include <string> 
-#include "gracfl/GraCFLSolver.hpp"
+#include "solvers/SolverGraCFL.hpp"
 
 namespace gracfl
 {
-    GraCFLSolver::GraCFLSolver(Config& config)
+    SolverGraCFL::SolverGraCFL(Config& config)
     {
         config_ = config;
         // printConfigs();
@@ -19,7 +19,7 @@ namespace gracfl
         }
     }
 
-    GraCFLSolver::~GraCFLSolver()
+    SolverGraCFL::~SolverGraCFL()
     {
         delete graph_;
         graph_ = nullptr;
@@ -27,27 +27,27 @@ namespace gracfl
         grammar_ = nullptr;
     }
 
-    Graph* GraCFLSolver::processGraph() 
+    Graph* SolverGraCFL::processGraph() 
     {
         if (config_.model_ == "gracfl") {
             if (config_.mode_ == "serial") {
                 if (config_.direct_ == "fw") {
-                    FWGracfl* graph = new FWGracfl(config_, *grammar_);
-                    return graph;
+                    SolverFWGram* solver = new SolverFWGram(config_, *grammar_);
+                    return solver;
                 }
                 else if (config_.direct_ == "bw") {
-                    BWGracfl* graph = new BWGracfl(config_, *grammar_);
-                    return graph;
+                    SolverBWGram* solver = new SolverBWGram(config_, *grammar_);
+                    return solver;
                 }
                 else if (config_.direct_ == "bi") {
-                    BIGracfl* graph = new BIGracfl(config_, *grammar_);
-                    return graph;
+                    SolverBIGram* solver = new SolverBIGram(config_, *grammar_);
+                    return solver;
                 }                        
             } 
             else if (config_.mode_ == "parallel") {
                 if (config_.direct_ == "fw") {
-                    FWGracflParallel* graph = new FWGracflParallel(config_, *grammar_);
-                    return graph;
+                    SolverFWGramParallel* solver = new SolverFWGramParallel(config_, *grammar_);
+                    return solver;
                 }
             }
             // else { // parallel
@@ -86,7 +86,7 @@ namespace gracfl
         return nullptr;
     }
 
-    void GraCFLSolver::solveCFL()
+    void SolverGraCFL::solveCFL()
     {
         ull initEdgeCnt = graph_->countEdge();
 

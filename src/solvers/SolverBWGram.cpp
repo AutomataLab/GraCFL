@@ -1,10 +1,10 @@
 #include <iostream>
-#include "gracfl/BWGracfl.hpp"
+#include "solvers/SolverBWGram.hpp"
 
 namespace gracfl 
 {
-    // Definition of class BWGracfl
-    BWGracfl::BWGracfl(Config& config, const Grammar& grammar)
+    // Definition of class SolverBWGram
+    SolverBWGram::SolverBWGram(Config& config, const Grammar& grammar)
     : Graph(config.graphfile_, grammar)
     {
         config_ = config;
@@ -13,7 +13,7 @@ namespace gracfl
         addInitialEdges();
     }
 
-    void  BWGracfl::solve(const Grammar& grammar)
+    void  SolverBWGram::solve(const Grammar& grammar)
     {
         addAllSelfEdges(grammar); // add epsilon edges
         uint itr = 0;
@@ -26,7 +26,7 @@ namespace gracfl
         } while(!terminate);
     }
 
-    void  BWGracfl::singleIteration(const Grammar& grammar, bool& terminate)
+    void  SolverBWGram::singleIteration(const Grammar& grammar, bool& terminate)
     {
         for (uint g = 0; g < grammar.getLabelSize(); g++)
         {
@@ -100,7 +100,7 @@ namespace gracfl
         }
     }
 
-    void BWGracfl::addInitialEdges()
+    void SolverBWGram::addInitialEdges()
     {
         for (EdgeForReading edge : getEdges())
         {
@@ -111,7 +111,7 @@ namespace gracfl
         }
     }
 
-    void BWGracfl::addAllSelfEdges(const Grammar& grammar)
+    void SolverBWGram::addAllSelfEdges(const Grammar& grammar)
     {
         for (int l = 0; l < grammar.getRule1().size(); l++)
         {
@@ -123,7 +123,7 @@ namespace gracfl
         }
     }
 
-    void BWGracfl::addSelfEdge(EdgeForReading& edge)
+    void SolverBWGram::addSelfEdge(EdgeForReading& edge)
     {
         if (hashset_[edge.to][edge.label].find(edge.from) == hashset_[edge.to][edge.label].end())
         {
@@ -133,7 +133,7 @@ namespace gracfl
         }
     }
 
-    void BWGracfl::addEdge(EdgeForReading& edge, bool& terminate) 
+    void SolverBWGram::addEdge(EdgeForReading& edge, bool& terminate) 
     {
         if (hashset_[edge.to][edge.label].find(edge.from) == hashset_[edge.to][edge.label].end()) {
             hashset_[edge.to][edge.label].insert(edge.from);
@@ -142,7 +142,7 @@ namespace gracfl
         }
     }
 
-    ull BWGracfl::countEdge()
+    ull SolverBWGram::countEdge()
     {
         return countEdgeHelper(hashset_);
     }

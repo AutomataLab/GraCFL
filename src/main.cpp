@@ -3,14 +3,14 @@
 #include <unordered_map>
 #include <stdexcept>
 #include <omp.h>
-#include "gracfl/GraCFLSolver.hpp"
+#include "solvers/SolverGraCFL.hpp"
 #include "utils/Config.hpp"
 
 int main(int argc, char* argv[]) {
     try {
         gracfl::Config config(argc, argv);
         config.printConfigs();
-        gracfl::GraCFLSolver solver(config);
+        gracfl::SolverGraCFL solver(config);
         solver.solveCFL();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";
