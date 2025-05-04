@@ -23,46 +23,27 @@
 namespace gracfl
 {
     /**
-     * @class SolverGraCFL
+     * @class SolverBase
      * @brief Encapsulates configuration, graph loading, and execution of CFL-reachability analysis.
      *
      * Reads a normalized context-free grammar and graph according to provided configuration,
      * then applies the chosen CFL-reachability algorithm (BI, BW, or FW) in serial
      * or parallel mode.
      */
-    class SolverGraCFL 
+    class SolverBase 
     {
-        /// Solver configuration parameters
-        Config config_;
-        /// Pointer to loaded grammar
-        Grammar grammar_;
-
-        Base graph* = selectGraph()
-
-        getGraph()
-        {
-            if (config.3d)
-            {
-                return graph3D;
-            }
-            else 
-            {
-                return graph2D;
-            }
-        }
-
     public:
         /**
-         * @brief Constructs a new SolverGraCFL with specified configuration.
+         * @brief Constructs a new SolverBase with specified configuration.
          * @param config Reference to a Config object containing solver settings (graph path, grammar path, mode, threads, etc.).
          * @throws std::runtime_error if grammar or graph cannot be loaded.
          */
-        SolverGraCFL(int argc, char* argv[]);
+        SolverBase() = default;
 
         /**
          * @brief Destructor: releases any allocated grammar or graph resources.
          */
-        ~SolverGraCFL();
+        ~SolverBase() = default;
 
         /**
          * @brief Executes the CFL-reachability algorithm on the processed graph.
@@ -70,6 +51,6 @@ namespace gracfl
          * Depending on the model (gracfl or base) and mode (serial or parallel),
          * runs the appropriate solver routine to compute reachable pairs.
          */
-        void solve();
+        virtual void runCFL() = 0;
     };
 }

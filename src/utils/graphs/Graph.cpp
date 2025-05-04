@@ -1,18 +1,18 @@
 #include <fstream>
 #include <string>
 #include "utils/Grammar.hpp"
-#include "utils/Graph.hpp"
+#include "utils/graphs/Graph.hpp"
 
 namespace gracfl {
     Graph::Graph(std::string& graphfilepath, const Grammar& grammar)
     {
-        graphfilepath_ = graphfilepath;
+        numLabels_ = grammar.getLabelSize();
         loadGraphFile(graphfilepath, grammar);
     }
 
     void Graph::loadGraphFile(std::string& graphfilepath, const Grammar& grammar)
     {
-        EdgeForReading newEdge;
+        Edge newEdge;
         uint from, to;
         std::string label;
 
@@ -35,7 +35,7 @@ namespace gracfl {
         infile.close();
     }
 
-    ull Graph::countEdgeHelper(std::vector<std::vector<std::unordered_set<ull>>>& hashset)
+    ull Graph::countEdge(std::vector<std::vector<std::unordered_set<ull>>>& hashset)
     {
         ull size = 0;
         for (uint i = 0; i < hashset.size(); i++)

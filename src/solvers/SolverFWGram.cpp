@@ -2,17 +2,15 @@
 #include "solvers/SolverFWGram.hpp"
 
 namespace gracfl 
-{
-    SolverFWGram::SolverFWGram(Config& config, const Grammar& grammar)
-    : Graph(config.graphfile_, grammar)
+{   
+    SolverFWGram::SolverFWGram(Grammar& grammar, Graph3DOut& graph)
+    : grammar_(grammar)
+    , graph_  (graph)
     {
-        config_ =  config;
-        outEdges_.assign(grammar.getLabelSize(), std::vector<BufferEdge>(getNodeSize()));
-        hashset_.assign(getNodeSize(), std::vector<std::unordered_set<ull>>(grammar.getLabelSize(), std::unordered_set<ull>()));
-        addInitialEdges();
+        // any extra setup can go here
     }
-    
-    void  SolverFWGram::solve(const Grammar& grammar)
+
+    void  SolverFWGram::runCFL()
     { 
         addAllSelfEdges(grammar); // add epsilon edges
         uint itr = 0;
@@ -25,7 +23,7 @@ namespace gracfl
         } while(!terminate);
     }
 
-    void  SolverFWGram::singleIteration(const Grammar& grammar, bool& terminate)
+    void  SolverFWGram::runSingleIteration(bool& terminate)
     {
         for (uint g = 0; g < grammar.getLabelSize(); g++)
         {
@@ -95,19 +93,7 @@ namespace gracfl
         }
     }
 
-    void SolverFWGram::addInitialEdges()
-    {
-        for (EdgeForReading edge : getEdges())
-        {
-            hashset_[edge.from][edge.label].insert(edge.to);
-            outEdges_[edge.label][edge.from].vertexList.push_back(edge.to);
-            
-            // Update NEW_END pointers
-            outEdges_[edge.label][edge.from].NEW_END++;
-        }
-    }
-
-    void SolverFWGram::addAllSelfEdges(const Grammar& grammar)
+    void SolverFWGram::addSelfEdges()
     {
         for (int l = 0; l < grammar.getRule1().size(); l++)
         {
@@ -117,30 +103,5 @@ namespace gracfl
                 addSelfEdge(edge);
             }
         }
-    }
-
-    void SolverFWGram::addSelfEdge(EdgeForReading& edge)
-    {
-        // check if the new edge based on an epsilon grammar rule exists or not. l: grammar ID, 0: LHS
-        if (hashset_[edge.from][edge.label].find(edge.to) == hashset_[edge.from][edge.label].end())
-        {
-            hashset_[edge.from][edge.label].insert(edge.to);
-            outEdges_[edge.label][edge.from].vertexList.push_back(edge.to);
-            outEdges_[edge.label][edge.from].NEW_END++;
-        }
-    }
-
-    void SolverFWGram::addEdge(EdgeForReading& edge, bool& terminate) 
-    {
-        if (hashset_[edge.from][edge.label].find(edge.to) == hashset_[edge.from][edge.label].end()) {
-            hashset_[edge.from][edge.label].insert(edge.to);
-            outEdges_[edge.label][edge.from].vertexList.push_back(edge.to);
-            terminate = false;
-        }
-    }
-
-    ull SolverFWGram::countEdge()
-    {
-        return countEdgeHelper(hashset_);
     }
 }

@@ -8,10 +8,15 @@
 
 int main(int argc, char* argv[]) {
     try {
-        gracfl::Config config(argc, argv);
-        config.printConfigs();
-        gracfl::SolverGraCFL solver(config);
-        solver.solveCFL();
+
+        if (c)
+        {
+            
+        }
+        else 
+        {
+
+        }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";
         gracfl::Config::printUsage(argv[0]);
