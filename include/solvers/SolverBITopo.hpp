@@ -1,8 +1,7 @@
 #pragma once
 
 #include "utils/graphs/Graph.hpp"
-#include "utils/graphs/Graph3DIn.hpp"
-#include "utils/graphs/Graph3DOut.hpp"
+#include "utils/graphs/Graph2DBi.hpp"
 #include "utils/Edges.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
@@ -12,19 +11,19 @@
 namespace gracfl 
 {
     /**
-     * @class SolverBIGram
+     * @class SolverBITopo
      * @brief  Bidirectional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
      * Inherits from Graph and adds support for bidirectional edge derivations.
      * Maintains separate out-edges and in-edges adjacency lists, as well as a hashset to avoid duplicates.
      */
-    class SolverBIGram : public SolverBase
+    class SolverBITopo : public SolverBase
     {
         Grammar& grammar_;
-        Graph3DBi* graph_;
+        Graph2DBi* graph_;
     public:
-        SolverBIGram(std::string graphfilepath, Grammar& grammar);
-        ~SolverBIGram();
+        SolverBITopo(std::string graphfilepath, Grammar& grammar);
+        ~SolverBITopo();
 
         /**
          * @brief Executes the full bidirectional CFL-reachability analysis.
@@ -38,12 +37,11 @@ namespace gracfl
          * @param terminate Flag set to false if new edges were added.
          */
         void runSingleIteration(
-            std::vector<std::vector<TemporalVector>>& outEdges,
-            std::vector<std::vector<TemporalVector>>& inEdges,
+            std::vector<TemporalVectorWithLbldVtx>& outEdges,
+            std::vector<TemporalVectorWithLbldVtx>& inEdges,
             std::vector<std::vector<std::unordered_set<ull>>>& hashset,
             std::vector<std::vector<uint>>& grammar2index,
-            std::vector<std::vector<std::pair<uint, uint>>>& grammar3indexLeft,
-            std::vector<std::vector<std::pair<uint, uint>>>& grammar3indexRight,
+            std::vector<std::vector<uint>>& grammar3index,
             uint labelSize,
             uint nodeSize,
             bool& terminate);

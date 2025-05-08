@@ -14,10 +14,6 @@
 #include "utils/graphs/Graph3DIn.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
-#include "solvers/SolverBIGram.hpp"
-#include "solvers/SolverBWGram.hpp"
-#include "solvers/SolverFWGram.hpp"
-#include "solvers/SolverFWGramParallel.hpp"
 
 
 namespace gracfl
@@ -43,7 +39,7 @@ namespace gracfl
         /**
          * @brief Destructor: releases any allocated grammar or graph resources.
          */
-        ~SolverBase() = default;
+        virtual ~SolverBase() = default;
 
         /**
          * @brief Executes the CFL-reachability algorithm on the processed graph.
@@ -52,5 +48,8 @@ namespace gracfl
          * runs the appropriate solver routine to compute reachable pairs.
          */
         virtual void runCFL() = 0;
+
+        virtual ull getEdgeCount() = 0;
+        // virtual std::vector<std::vector<std::unordered_set<ull>>>& getHashset() = 0;
     };
 }

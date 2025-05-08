@@ -105,7 +105,8 @@ endif()
 # Find all .cpp files in the src directory
 file(GLOB GRACFL_SOURCES 
     "${SRC_DIR}/main.cpp"
-    "${SRC_DIR}/*/*.cpp")
+    "${SRC_DIR}/*/*.cpp"
+    "${SRC_DIR}/*/*/*.cpp")
 
 # ––– Define the executable
 add_executable(gracfl

@@ -1,27 +1,27 @@
 #pragma once
 
 #include "utils/graphs/Graph.hpp"
-#include "utils/graphs/Graph3DOut.hpp"
+#include "utils/graphs/Graph3DIn.hpp"
 #include "utils/Edges.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
 #include "utils/Grammar.hpp"
 #include "solvers/SolverBase.hpp"
-#include "solvers/SolverFWGram.hpp"
+#include "solvers/SolverBWGram.hpp"
 
 namespace gracfl 
 {
     /**
-     * @class SolverFWGramParallel
+     * @class SolverBWGramParallel
      * @brief  Parallel Forward directional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
      * 
      * Inherits from SolverFWGram and adds support for parallel forward directional edge derivations.
      */
-    class SolverFWGramParallel : public SolverFWGram 
+    class SolverBWGramParallel : public SolverBWGram 
     {
         uint numOfThreads_;
     public:
-        SolverFWGramParallel(std::string graphfilepath, Grammar& grammar, uint numOfThreads);
+        SolverBWGramParallel(std::string graphfilepath, Grammar& grammar, uint numOfThreads);
 
         /**
          * @brief Executes the full parallel forward-directional CFL-reachability analysis.
@@ -38,7 +38,7 @@ namespace gracfl
          * @param terminate Flag set to false if new edges were added.
          */
         void runSingleIterationParallel(
-            std::vector<std::vector<TemporalVector>>& outEdges,
+            std::vector<std::vector<TemporalVector>>& inEdges,
             std::vector<std::vector<std::unordered_set<ull>>>& hashset,
             std::vector<std::vector<uint>>& grammar2index,
             std::vector<std::vector<std::pair<uint, uint>>>& grammar3indexLeft,

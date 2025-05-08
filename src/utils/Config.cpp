@@ -33,13 +33,13 @@ namespace gracfl
         };
 
         // required file paths: graph and grammar (highest priority)
-        graphfile_ = get("--graph");
-        if (graphfile_.empty()) {
+        graphFilepath_ = get("--graph");
+        if (graphFilepath_.empty()) {
             throw std::runtime_error("--graph is required");
         }
 
-        grammarfile_ = get("--grammar");
-        if (grammarfile_.empty()) {
+        grammarFilepath_ = get("--grammar");
+        if (grammarFilepath_.empty()) {
             throw std::runtime_error("--grammar is required");
         }
     
@@ -78,6 +78,15 @@ namespace gracfl
               "Invalid --direct '" + direct_ + "'. Allowed: fw, bw, bi");
         }
     
+        // ** strategy **
+        strategy_ = get("--strategy");
+        if (strategy_.empty()) {
+            strategy_ = "gram-driven";
+        } else if (strategy_ != "gram-driven" && strategy_ != "topo-driven") {
+            throw std::runtime_error(
+                "Invalid --strategy '" + strategy_ + "'. Allowed: gram-driven, topo-driven");
+        }
+        
         // threads
         threads_ = 1;
         if (mode_ == "parallel") {
@@ -129,8 +138,8 @@ namespace gracfl
     void Config::printConfigs() {
         // print all the settings up front
         std::cout << "Configuration:\n"
-                  << "  graph   = " << graphfile_ << "\n"
-                  << "  grammar = " << grammarfile_ << "\n"
+                  << "  graph   = " << graphFilepath_ << "\n"
+                  << "  grammar = " << grammarFilepath_ << "\n"
                   << "  model   = " << model_ << "\n"
                   << "  direct  = " << direct_ << "\n"
                   << "  mode    = " << mode_ << "\n";

@@ -1,37 +1,33 @@
 #include <iostream>
-#include "solvers/SolverBWGram.hpp"
+#include "solvers/SolverBWGramParallel.hpp"
 
 namespace gracfl 
 {
-    SolverBWGram::SolverBWGram(std::string graphfilepath, Grammar& grammar)
-    : grammar_(grammar)
-    , graph_(new Graph3DIn(graphfilepath, grammar))
+    SolverBWGramParallel::SolverBWGramParallel(std::string graphfilepath, Grammar& grammar, uint numOfThreads)
+    : SolverBWGram(graphfilepath, grammar)
     {
+        numOfThreads_ = numOfThreads;
     }
 
-    SolverBWGram::~SolverBWGram()
-    {
-        delete graph_;
-    }
-
-    void  SolverBWGram::runCFL()
-    {
+    void  SolverBWGramParallel::runCFL()
+    { 
         uint itr = 0;
         bool terminate;
         auto& inEdges = graph_->inEdges_;
-        auto& inHashset = graph_->inHashset_;
+        auto& hashset = graph_->inHashset_;
         auto& grammar2index = grammar_.grammar2index_;
-        auto& grammar3indexRight = grammar_.grammar3indexRight_;
+        auto& grammar3indexRight  = grammar_.grammar3indexRight_;
         auto labelSize = grammar_.getLabelSize();
         auto nodeSize = graph_->getNodeSize();
 
         addSelfEdges(); // add epsilon edges
+
         do {
             itr++;
             terminate = true;
-            runSingleIteration(
-                inEdges, 
-                inHashset, 
+            runSingleIterationParallel(
+                inEdges,
+                hashset, 
                 grammar2index,
                 grammar3indexRight,
                 labelSize,
@@ -41,18 +37,18 @@ namespace gracfl
         } while(!terminate);
     }
 
-    void  SolverBWGram::runSingleIteration(
+    void SolverBWGramParallel::runSingleIterationParallel(
         std::vector<std::vector<TemporalVector>>& inEdges,
         std::vector<std::vector<std::unordered_set<ull>>>& inHashset,
         std::vector<std::vector<uint>>& grammar2index,
         std::vector<std::vector<std::pair<uint, uint>>>& grammar3indexRight,
         uint labelSize,
         uint nodeSize,
-        bool& terminate
-    )
+        bool& terminate)
     {
         for (uint g = 0; g < labelSize; g++)
         {
+            #pragma omp parallel for schedule(static) num_threads(numOfThreads_)
             for (int i = 0; i < nodeSize; i++)
             {
                 uint inNbr1;
@@ -115,6 +111,7 @@ namespace gracfl
         // ----------------- Update Sliding Pointers -----------------
         for (uint g = 0; g < labelSize; g++)
         {
+            #pragma omp parallel for schedule(static) num_threads(numOfThreads_)
             for (int i = 0; i < nodeSize; i++)
             {
                 inEdges[g][i].OLD_END = inEdges[g][i].NEW_END;
@@ -122,22 +119,4 @@ namespace gracfl
             }
         }
     }
-    
-
-    void SolverBWGram::addSelfEdges()
-    {
-        for (int l = 0; l < grammar_.getRule1().size(); l++)
-        {
-            for (int i = 0; i < graph_->getNodeSize(); i++)
-            {
-                Edge edge(i, i, grammar_.getRule1()[l][0]);
-                graph_->addSelfEdge(edge);
-            }
-        }
-    }
-
-    ull SolverBWGram::getEdgeCount()  
-    { 
-        return graph_->countEdge();
-    };
 }

@@ -5,6 +5,21 @@
 
 namespace gracfl {
   /**
+   * @brief Represents a directed edge with destination and grammar label.
+   */
+  struct LbldVtx
+  {
+    uint vtx;
+    uint label;
+    LbldVtx() {}
+    LbldVtx(uint vtx, uint label)
+    {
+      this->vtx = vtx;
+      this->label = label;
+    }
+  };
+  
+  /**
    * @brief TemporalVector struct for edge storage with NEW/OLD sliding pointers.
    */
   struct TemporalVector
@@ -15,19 +30,12 @@ namespace gracfl {
     TemporalVector() {}
   };
 
-  /**
-   * @brief Represents a directed edge with destination and grammar label.
-   */
-  struct OutEdge
+  struct TemporalVectorWithLbldVtx
   {
-    uint end;
-    uint label;
-    OutEdge() {}
-    OutEdge(uint end, uint label)
-    {
-      this->end = end;
-      this->label = label;
-    }
+    uint OLD_END = 0;
+    uint NEW_END = 0;
+    std::vector<LbldVtx> vertexList;
+    TemporalVectorWithLbldVtx() {}
   };
 
   /**

@@ -1,57 +1,58 @@
-#include "utils/graphs/Graph3DIn.hpp"
+#include "utils/graphs/Graph2DIn.hpp"
 
 namespace gracfl {
-    Graph3DIn::Graph3DIn(std::string& graphfilepath, const Grammar& grammar)
+    Graph2DIn::Graph2DIn(std::string& graphfilepath, const Grammar& grammar)
         : Graph(graphfilepath, grammar) 
     {
         initContainers();
         addInitialEdges();
     }
 
-    void Graph3DIn::initContainers()
+    void Graph2DIn::initContainers()
     {
-        inEdges_.assign(getLabelSize(), std::vector<TemporalVector>(getNodeSize()));
+        inEdges_.assign(getNodeSize(), TemporalVectorWithLbldVtx());
         inHashset_.assign(getNodeSize(), std::vector<std::unordered_set<ull>>(getLabelSize(), std::unordered_set<ull>()));
     }
 
-    void Graph3DIn::addInitialEdges()
+    void Graph2DIn::addInitialEdges()
     {
         for (Edge edge : getEdges())
         {
             inHashset_[edge.to][edge.label].insert(edge.from);
-            inEdges_[edge.label][edge.to].vertexList.push_back(edge.from);
+            inEdges_[edge.to].vertexList.push_back(LbldVtx(edge.from, edge.label));
 
             // update the sliding pointers
-            inEdges_[edge.label][edge.to].NEW_END++;
+            inEdges_[edge.to].NEW_END++;
         }
     }
 
-    void Graph3DIn::clearContainers()
+    void Graph2DIn::clearContainers()
     {
         inEdges_.clear();
         inHashset_.clear();
     }
 
-    void Graph3DIn::checkAndAddEdge(Edge& edge, bool& terminate)
+
+    void Graph2DIn::checkAndAddEdge(Edge& edge, bool& terminate)
     {
         if (inHashset_[edge.to][edge.label].find(edge.from) == inHashset_[edge.to][edge.label].end()) {
             inHashset_[edge.to][edge.label].insert(edge.from);
-            inEdges_[edge.label][edge.to].vertexList.push_back(edge.from);
+            inEdges_[edge.to].vertexList.push_back(LbldVtx(edge.from, edge.label));
             terminate = false;
         }
     }
-    
-    void Graph3DIn::addSelfEdge(Edge& edge)
+
+    void Graph2DIn::addSelfEdge(Edge& edge)
     {
         if (inHashset_[edge.to][edge.label].find(edge.from) == inHashset_[edge.to][edge.label].end())
         {
             inHashset_[edge.to][edge.label].insert(edge.from);
-            inEdges_[edge.label][edge.to].vertexList.push_back(edge.from);
-            inEdges_[edge.label][edge.to].NEW_END++;
+            inEdges_[edge.to].vertexList.push_back(LbldVtx(edge.from, edge.label));
+            inEdges_[edge.to].NEW_END++;
         }
     }
 
-    ull Graph3DIn::countEdge()
+    ull Graph2DIn::countEdge()
     {
         return countEdgeHelper(inHashset_);
     }

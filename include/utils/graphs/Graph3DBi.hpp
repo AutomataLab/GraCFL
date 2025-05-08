@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <unordered_set>
 #include "../Edges.hpp"
@@ -5,28 +7,23 @@
 #include "../Types.hpp"
 
 namespace gracfl {
-    using Out3D = std::vector<std::vector<TemporalVector>>;
-    using In3D = std::vector<std::vector<TemporalVector>>;
-    using Hash3D = std::vector<std::vector<std::unordered_set<ull>>>;
-
-    class Graph3DBi
-    : public Graph<Out3D,In3D,Hash3D>
+    class Graph3DBi : public Graph
     {
-    private:
-        Out3D outEdges_;
-        In3D inEdges_;
-        Hash3D hashset_;
-
     public:
+        std::vector<std::vector<TemporalVector>> outEdges_;
+        std::vector<std::vector<TemporalVector>> inEdges_;
+        std::vector<std::vector<std::unordered_set<ull>>> hashset_;
+        
         Graph3DBi(std::string& graphfilepath, const Grammar& grammar);
-        void initContainers() override;
-        void addInitialEdges() override;
-        void clearContainers() override;
-        void addSelfEdge(Edge& edge) override;
-        void addEdge(Edge& edge, bool& terminate) override;
+        void initContainers();
+        void addInitialEdges();
+        void clearContainers();
+        void addSelfEdge(Edge& edge);
+        void checkAndAddEdge(Edge& edge, bool& terminate);
+        ull countEdge();
 
-        Out3D& getOutEdges() override { return outEdges_; }
-        In3D& getInEdges() override { return inEdges_; }
-        Hash3D& getHashset() override { return hashset_; }
+        inline std::vector<std::vector<TemporalVector>>& getOutEdges()  { return outEdges_; }
+        inline std::vector<std::vector<TemporalVector>>& getInEdges() { return inEdges_; }
+        inline std::vector<std::vector<std::unordered_set<ull>>>& getHashset() { return hashset_; }
     };
 }

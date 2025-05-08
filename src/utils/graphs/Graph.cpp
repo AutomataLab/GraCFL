@@ -35,7 +35,7 @@ namespace gracfl {
         infile.close();
     }
 
-    ull Graph::countEdge(std::vector<std::vector<std::unordered_set<ull>>>& hashset)
+    ull Graph::countEdgeHelper(std::vector<std::vector<std::unordered_set<ull>>>& hashset)
     {
         ull size = 0;
         for (uint i = 0; i < hashset.size(); i++)
@@ -45,7 +45,6 @@ namespace gracfl {
                 size += hashset[i][j].size();
             }
         }
-
         return size;
     }
 }

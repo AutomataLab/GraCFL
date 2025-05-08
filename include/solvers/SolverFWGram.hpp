@@ -5,6 +5,8 @@
 #include "utils/Edges.hpp"
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
+#include "utils/Grammar.hpp"
+#include "solvers/SolverBase.hpp"
 
 namespace gracfl 
 {
@@ -17,19 +19,23 @@ namespace gracfl
      */
     class SolverFWGram : public SolverBase 
     {
+    protected:
         Grammar& grammar_;
-        Graph3DOut& graph_;
+        Graph3DOut* graph_;
     public:
-        SolverFWGram(Grammar& grammar, Graph3DOut& graph);
+        SolverFWGram(std::string graphfilepath, Grammar& grammar);
+        ~SolverFWGram();
 
         void runCFL() override;
 
-        /**
-         * @brief Performs one iteration of edge derivation.
-         * @param grammar   Grammar rules for edge derivations.
-         * @param terminate Flag set to false if new edges were added.
-         */
-        void runSingleIteration(bool& terminate);
+        void runSingleIteration(
+            std::vector<std::vector<TemporalVector>>& outEdges,
+            std::vector<std::vector<std::unordered_set<ull>>>& hashset,
+            std::vector<std::vector<uint>>& grammar2index,
+            std::vector<std::vector<std::pair<uint, uint>>>& grammar3indexLeft,
+            uint labelSize,
+            uint nodeSize,
+            bool& terminate);
 
         /**
          * @brief Adds self-loop edges (epsilon rules) for all nodes.
@@ -37,5 +43,8 @@ namespace gracfl
          */
         void addSelfEdges();
 
+        std::vector<std::vector<std::unordered_set<ull>>>& getGraph() { return graph_->getHashset(); }
+
+        ull getEdgeCount() override;
     };
 }

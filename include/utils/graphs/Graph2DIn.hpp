@@ -7,15 +7,13 @@
 #include "../Types.hpp"
 
 namespace gracfl {
-    
-
-    class Graph3DIn : public Graph
+    class Graph2DIn : public Graph
     {
     public:
-        std::vector<std::vector<TemporalVector>> inEdges_;
+        std::vector<TemporalVectorWithLbldVtx> inEdges_;
         std::vector<std::vector<std::unordered_set<ull>>> inHashset_;
-
-        Graph3DIn(std::string& graphfilepath, const Grammar& grammar);
+        
+        Graph2DIn(std::string& graphfilepath, const Grammar& grammar);
         void initContainers();
         void addInitialEdges();
         void clearContainers();
@@ -23,7 +21,7 @@ namespace gracfl {
         void checkAndAddEdge(Edge& edge, bool& terminate);
         ull countEdge();
 
-        inline std::vector<std::vector<TemporalVector>>& getInEdges() { return inEdges_; }
+        inline std::vector<TemporalVectorWithLbldVtx>& getInEdges() { return inEdges_; }
         inline std::vector<std::vector<std::unordered_set<ull>>>& getInHashset() { return inHashset_; }
     };
 }

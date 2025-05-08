@@ -15,54 +15,50 @@
 #include "utils/Types.hpp"
 #include "utils/Config.hpp"
 #include "solvers/SolverBIGram.hpp"
+#include "solvers/SolverBITopo.hpp"
 #include "solvers/SolverBWGram.hpp"
+#include "solvers/SolverBWTopo.hpp"
 #include "solvers/SolverFWGram.hpp"
+#include "solvers/SolverFWTopo.hpp"
 #include "solvers/SolverFWGramParallel.hpp"
+#include "solvers/SolverFWTopoParallel.hpp"
+#include "solvers/SolverBWGramParallel.hpp"
+#include "solvers/SolverBWTopoParallel.hpp"
+#include "solvers/SolverBase.hpp"
 
 
 namespace gracfl
 {
     /**
-     * @class SolverGraCFL
+     * @class Solver
      * @brief Encapsulates configuration, graph loading, and execution of CFL-reachability analysis.
      *
      * Reads a normalized context-free grammar and graph according to provided configuration,
      * then applies the chosen CFL-reachability algorithm (BI, BW, or FW) in serial
      * or parallel mode.
      */
-    class SolverGraCFL 
+    class Solver 
     {
         /// Solver configuration parameters
-        Config config_;
+        Config& config_;
         /// Pointer to loaded grammar
-        Grammar grammar_;
-
-        Base graph* = selectGraph()
-
-        getGraph()
-        {
-            if (config.3d)
-            {
-                return graph3D;
-            }
-            else 
-            {
-                return graph2D;
-            }
-        }
-
+        Grammar* grammar_;
+        /// Pointer to the solver based on the config
+        SolverBase* solver_;
     public:
         /**
-         * @brief Constructs a new SolverGraCFL with specified configuration.
+         * @brief Constructs a new Solver with specified configuration.
          * @param config Reference to a Config object containing solver settings (graph path, grammar path, mode, threads, etc.).
          * @throws std::runtime_error if grammar or graph cannot be loaded.
          */
-        SolverGraCFL(int argc, char* argv[]);
+        Solver(Config& config);
 
         /**
          * @brief Destructor: releases any allocated grammar or graph resources.
          */
-        ~SolverGraCFL();
+        ~Solver();
+
+        SolverBase* selectSolver();
 
         /**
          * @brief Executes the CFL-reachability algorithm on the processed graph.
@@ -71,5 +67,7 @@ namespace gracfl
          * runs the appropriate solver routine to compute reachable pairs.
          */
         void solve();
+
+        std::vector<std::vector<std::unordered_set<ull>>>& getGraph();
     };
 }

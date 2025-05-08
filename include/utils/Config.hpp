@@ -14,17 +14,17 @@ namespace gracfl
     class Config {
     public:
         /// Path to the input graph file (required).
-        std::string graphfile_;
+        std::string graphFilepath;
         /// Path to the context-free grammar file (required).
-        std::string grammarfile_;
-        /// Algorithm model to use: "gracfl" or "base".
-        std::string model_;
+        std::string grammarFilepath;
         /// Direction of traversal: "fw", "bw", or "bi".
-        std::string direct_;
+        std::string traversalDirection;
         /// Execution mode: "serial" or "parallel".
-        std::string mode_;
+        std::string executionMode;
+        std::string derivationStrategy;
          /// Number of threads for "parallel" mode .
-        unsigned   threads_;
+        unsigned   numThreads;
+
 
         /**
          * @brief Default constructor; leaves configuration uninitialized until parseArgs is called.

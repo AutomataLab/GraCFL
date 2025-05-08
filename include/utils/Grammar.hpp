@@ -22,7 +22,7 @@ namespace gracfl
      */
 	class Grammar 
 	{
-	private:
+	public:
 		/// total number of unique edge labels
 		uint labelSize_ = 0;
 		///  Path to the grammar definition file
@@ -66,7 +66,7 @@ namespace gracfl
          */
 		void loadGrammarFile();
 
-	public:
+	
 		/**
          * @brief Constructs a Grammar object and loads the grammar from file.
          * @param grammarFilePath Path to a text file where each line is a grammar rule.
@@ -131,6 +131,18 @@ namespace gracfl
 			return grammar3index_.at(symbol1 * labelSize_ + symbol2);
 		}
 
+
+		inline const std::vector<std::vector<uint>>& getRule2Index() const 
+		{
+			return grammar2index_;
+		}
+
+
+		inline const std::vector<std::vector<uint>>& getRule3Index() const
+		{
+			return grammar3index_;
+		}
+
 		/**
          * @brief Lookup pairs (A,C) for rules A ::= B C by B.
          * @param symbol Label ID B.
@@ -149,6 +161,16 @@ namespace gracfl
 		inline const std::vector<std::pair<uint,uint>>& rule3RightIndex(uint symbol) const
 		{
 			return grammar3indexRight_.at(symbol);
+		}
+
+		inline const std::vector<std::vector<std::pair<uint, uint>>>& getRule3LeftIndex() const
+		{
+			return grammar3indexLeft_;
+		}
+
+		inline const std::vector<std::vector<std::pair<uint, uint>>>& getRule3RightIndex() const
+		{
+			return grammar3indexRight_;
 		}
 
 		/**
