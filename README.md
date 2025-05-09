@@ -57,22 +57,31 @@ To build the project, follow these steps:
     ```bash
     make
     ```
-    Executables will be placed in build/bin/
+    Executable named `gracfl` will be placed in build/bin/
 
-5. **Running the executables:**
-    
-    After building, you can run the generated executables from the `build/bin/` directory as follows:
-    ### Create your Config file
-    Place a plain-text file named Config (no extension) alongside the executable (i.e. in `build/bin/`) with one `key = value` per line:
+## Running the CFL Reachability Analysis
+After building, you can run the generated executables from the `build/bin/` directory as follows:
 
-    ```
-    # Required inputs:
-    graphFilepath    = /home/user/data/graph.txt
-    grammarFilepath  = /home/user/data/grammar.txt
-    
-    # Optional settings (defaults shown):
-    executionMode      = serial           # serial or parallel (default: serial)
-    traversalDirection = bi               # fw, bw, or bi (default: bi if serial or fw if parallel)
-    processingStrategy = gram-driven      # gram-driven or topo-driven (default: gram-driven)
-    numThreads         = 32               # positive integer, only used if parallel (default: all available cores)
-    ```
+### First Create your ConfigGraCFL file
+
+Place a plain-text file named  `ConfigGraCFL` (no extension) alongside the executable (i.e. in `build/bin/`) with one `key = value` per line:
+
+```
+# Required inputs:
+graphFilepath    = /home/user/data/graph.txt
+grammarFilepath  = /home/user/data/grammar.txt
+
+# Optional settings (defaults shown):
+executionMode      = serial           # serial or parallel (default: serial)
+traversalDirection = bi               # fw, bw, or bi (default: bi if serial or fw if parallel)
+processingStrategy = gram-driven      # gram-driven or topo-driven (default: gram-driven)
+numThreads         = 32               # positive integer, only used if parallel (default: all available cores)
+```
+
+### Then Run the Following Command
+
+```bash
+./gracfl
+```
+
+Note: The `ConfigGraCFL` file and the executable `gracfl` need to be in the same directory.
