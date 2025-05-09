@@ -7,7 +7,7 @@
 - [Build Instructions](#build-instructions)
 - [Running the CFL Reachability Analysis](#running-the-cfl-reachability-analysis)
 - [Example Graph and Grammar](#example-graph-and-grammar)
-- [GraCFL as a Library](gracfl-as-a-library)
+- [GraCFL as a Library](#gracfl-as-a-library)
 
 ## Project Overview
 **GraCFL** is designed for high-performance CFL reachability analysis. The project includes various models for performing CFL reachability computations with different optimizations and parallel strategies.
