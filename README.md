@@ -124,7 +124,7 @@ S    A    B         # binary rule
     # Add the GraCFL library as a subdirectory
     add_subdirectory(GraCFL)
     ```
-    ```
+    ```cmake
     # Link against the static library
     target_link_libraries(run_graCFL PRIVATE graCFLlib)
     ```
@@ -136,7 +136,9 @@ S    A    B         # binary rule
     
     # Add the GraCFL library as a subdirectory
     add_subdirectory(GraCFL)
-    
+  
+    # Other configurations in your CMakeLists.txt
+     
     # Build your executable
     add_executable(ExternalGraCFLUserExecutable main.cpp)
     
