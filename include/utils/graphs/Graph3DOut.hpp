@@ -7,6 +7,14 @@
 #include "../Types.hpp"
 
 namespace gracfl {
+    /**
+     * @class Graph3DOut
+     * @brief A 3D graph structure that stores only outgoing edges for CFL reachability analysis.
+     *
+     * This class organizes outgoing edges by both labels and source nodes, enabling label-partitioned
+     * graph traversal. It is optimized for forward grammar-driven CFL solving, allowing fast edge 
+     * lookups and efficient memory usage for large graphs.
+     */
     class Graph3DOut : public Graph
     {
     public:

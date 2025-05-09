@@ -7,6 +7,14 @@
 #include "../Types.hpp"
 
 namespace gracfl {
+    /**
+     * @class Graph3DBi
+     * @brief A 3D bidirectional graph structure for CFL reachability analysis.
+     *
+     * This class represents a graph where edges are grouped by both source/destination nodes and labels,
+     * allowing label-sensitive traversal in both forward and backward directions. It is suited for
+     * grammar-driven and label-partitioned CFL solvers.
+     */
     class Graph3DBi : public Graph
     {
     public:

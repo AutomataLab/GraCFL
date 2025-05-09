@@ -7,6 +7,14 @@
 #include "../Types.hpp"
 
 namespace gracfl {
+    /**
+     * @class Graph2DOut
+     * @brief A graph structure that stores only outgoing edges for CFL reachability analysis.
+     *
+     * This class maintains a directed graph where only outgoing edges are stored, along with 
+     * a hashset to track edge presence efficiently. It supports operations to add edges, 
+     * initialize containers, and compute edge statistics, useful in forward traversal of CFL solvers.
+     */
     class Graph2DOut : public Graph
     {
     public:

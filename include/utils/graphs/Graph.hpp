@@ -34,8 +34,16 @@ namespace gracfl {
          */
         inline size_t getEdgeSize() { return numEdges_; }
 
+        /**
+         * @brief Get the number of labels.
+         * @return Number of unique labels in the graph.
+         */
         inline size_t getLabelSize() { return numLabels_; }
 
+        /**
+         * @brief Get the edges of the graph.
+         * @return Vector of edges in the graph.
+         */
         inline std::vector<Edge>& getEdges() { return edges_; }
     };
 }

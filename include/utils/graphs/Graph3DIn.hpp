@@ -7,8 +7,13 @@
 #include "../Types.hpp"
 
 namespace gracfl {
-    
-
+    /**
+     * @class Graph3DIn
+     * @brief A label-partitioned graph structure that stores only incoming edges for CFL reachability analysis.
+     *
+     * This class is designed to support backward traversal in context-free language (CFL) analysis.
+     * Edges are organized by label and destination node, allowing for efficient grammar-driven evaluation.
+     */
     class Graph3DIn : public Graph
     {
     public:
