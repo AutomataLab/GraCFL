@@ -1,6 +1,8 @@
 
 // include this header if you want to print the exception message
 #include <iostream>
+#include <vector>
+#include <unordered_set>
 
 // As the function throws error, we need to include the stdexcept header
 #include <stdexcept>
@@ -43,6 +45,9 @@ void example() {
         gracfl::Solver* solver = new gracfl::Solver(config);
         // Execute the CFL-reachability analysis
         solver->solve();
+        // Retrieve the CFL-reachability graph:
+        // outputCFLGraph[node][label] is the set of all reachable destination node IDs from the source node with the edge label.
+        std::vector<std::vector<std::unordered_set<ull>>> outputCFLGraph = solver->getGraph();
         // Clean up the solver instance
         delete solver;
     } catch (const std::exception& e) {
