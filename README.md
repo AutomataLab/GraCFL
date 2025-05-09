@@ -5,6 +5,8 @@
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Build Instructions](#build-instructions)
+- [Running the CFL Reachability Analysis](#running-the-cfl-reachability-analysis)
+- [Example Graph and Grammar](#example-graph-and-grammar)
 
 ## Project Overview
 **GraCFL** is designed for high-performance CFL reachability analysis. The project includes various models for performing CFL reachability computations with different optimizations and parallel strategies.
@@ -104,8 +106,8 @@ Each line is a directed, labeled edge in the format: `src dst label`
 Each line represents a production rule in the grammar. A rule of type `A = BC` is written in this format `A    B    C`
 ```
 A                   # epsilon rule creates self edges
-A    a              # unary rules
-B    b              # unary rules
+A    a              # unary rule
+B    b              # unary rule
 S    A    B         # binary rule 
 ```
 
