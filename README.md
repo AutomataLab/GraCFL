@@ -60,23 +60,19 @@ To build the project, follow these steps:
     Executables will be placed in build/bin/
 
 5. **Running the executables:**
-
+    
     After building, you can run the generated executables from the `build/bin/` directory as follows:
-   
-   ```bash
-      ./<executable>
-      --graph   <graphfile>       [REQUIRED]
-      --grammar <grammarfile>     [REQUIRED]
-      [--model   <gracfl|base>]   (default: gracfl)
-      [--direct  <fw|bw|bi>]      (default: bi)
-      [--mode    <serial|parallel>] (default: serial)
-      [--thread  <n>]             (default: 1, or max available hardware threads if mode=parallel)
-   ```
-   ### Required Arguments
-    - **`--graph`**: Path to the input graph file
-    - **`--grammar`**: Path to the grammar file
-   ### Optional Arguments
-    - **`--model`**: Solver model to use (`gracfl` or `base`)
-    - **`--direct`**: Direction of exploration (`fw`, `bw`, or `bi`)
-    - **`--mode`** Execution mode (`serial` or `parallel`)
-    - **`--thread` Number of threads (if omitted in parallel mode, uses all available cores)
+    ### Create your Config file
+    Place a plain-text file named Config (no extension) alongside the executable (i.e. in `build/bin/`) with one `key = value` per line:
+
+    ```
+    # Required inputs:
+    graphFilepath    = /home/user/data/graph.txt
+    grammarFilepath  = /home/user/data/grammar.txt
+    
+    # Optional settings (defaults shown):
+    executionMode      = serial           # serial or parallel (default: serial)
+    traversalDirection = bi               # fw, bw, or bi (default: bi if serial or fw if parallel)
+    processingStrategy = gram-driven      # gram-driven or topo-driven (default: gram-driven)
+    numThreads         = 32               # positive integer, only used if parallel (default: all available cores)
+    ```
