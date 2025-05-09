@@ -66,7 +66,7 @@ After building, you can run the generated executables from the `build/bin/` dire
 
 Place a plain-text file named  `ConfigGraCFL` (no extension) alongside the executable (i.e. in `build/bin/`) with one `key = value` per line:
 
-```
+```text
 # Required inputs:
 graphFilepath    = /home/user/data/graph.txt
 grammarFilepath  = /home/user/data/grammar.txt
@@ -85,3 +85,27 @@ numThreads         = 32               # positive integer, only used if parallel 
 ```
 
 Note: The `ConfigGraCFL` file and the executable `gracfl` need to be in the same directory.
+
+## Example Graph and Grammar
+
+To help you get started, here’s a minimal example of an input graph and a normalized (Chomsky Normal Form) grammar for CFL reachability.
+
+### Sample Graph (`sample_graph.txt`)
+
+Each line is a directed, labeled edge in the format: `src dst label`
+```text
+0 1 a
+1 2 b
+2 3 a
+3 4 b
+```
+
+### Sample Normalized Grammar (sample_grammar.txt)
+Each line represents a production rule in the grammar. A rule of type `A = BC` is written in this format `A    B    C`
+```
+A                   # epsilon rule creates self edges
+A    a              # unary rules
+B    b              # unary rules
+S    A    B         # binary rule 
+```
+
