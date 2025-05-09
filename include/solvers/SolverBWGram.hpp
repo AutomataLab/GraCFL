@@ -12,10 +12,11 @@ namespace gracfl
 {
     /**
      * @class SolverBWGram
-     * @brief  Backward directional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
-     * 
-     * Inherits from Graph and adds support for backward directional edge derivations.
-     * Maintains  in-edges adjacency list, as well as a hashset to avoid duplicates.
+     * @brief Backward grammar-driven CFL solver.
+     *
+     * This solver performs context-free language reachability analysis using a backward
+     * traversal strategy. It is driven by production rules in the grammar and operates on a
+     * graph structure that supports incoming edge access (Graph3DIn).
      */
     class SolverBWGram : public SolverBase 
     {
@@ -31,11 +32,18 @@ namespace gracfl
 
         /**
          * @brief Performs one iteration of edge derivation.
-         * @param grammar   Grammar rules for edge derivations.
-         * @param terminate Flag set to false if new edges were added.
+         * 
+         * In this iteration, derivations are performed based on the grammar rules
+         * and the current state of the graph.
+         * 
+         * @param inEdges Incoming edge lists.
+         * @param hashset Edge presence tracker (node × label → set of neighbors).
+         * @param grammar2index Unary production rules.
+         * @param grammar3indexRight Binary productions (right-side association).
+         * @param labelSize Number of total symbols.
+         * @param nodeSize Total number of nodes/vertex in the graph.
+         * @param terminate Flag indicating whether convergence has been reached.
          */
-        void runSingleIteration(bool& terminate);
-
         void runSingleIteration(
             std::vector<std::vector<TemporalVector>>& inEdges,
             std::vector<std::vector<std::unordered_set<ull>>>& hashset,
@@ -46,14 +54,21 @@ namespace gracfl
             bool& terminate
         );
 
-        /**
-         * @brief Adds self-loop edges (epsilon rules) for all nodes.
-         * @param grammar Grammar rules for edge derivations.
+         /**
+         * @brief Adds self-loop epsilon edges to support epsilon productions.
          */
         void addSelfEdges();
 
-        std::vector<std::vector<std::unordered_set<ull>>>& getGraph() { return graph_->getInHashset(); }
 
+        std::vector<std::vector<std::unordered_set<ull>>> getGraph() override { 
+            std::vector<std::vector<std::unordered_set<ull>>> outHashset = convertInHashsetToOutHashset(graph_->getInHashset());
+            return outHashset; 
+        }
+
+        /**
+         * @brief Retrieves the total number of CFL-reachable edges in the graph.
+         * @return Number of reachable edges.
+         */
         ull getEdgeCount() override;
     };
 }

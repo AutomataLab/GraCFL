@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <stdexcept>
@@ -29,13 +28,12 @@
 
 namespace gracfl
 {
-    /**
+   /**
      * @class Solver
-     * @brief Encapsulates configuration, graph loading, and execution of CFL-reachability analysis.
-     *
-     * Reads a normalized context-free grammar and graph according to provided configuration,
-     * then applies the chosen CFL-reachability algorithm (BI, BW, or FW) in serial
-     * or parallel mode.
+     * @brief Main driver class that encapsulates configuration, grammar, and execution of CFL-reachability analysis.
+     * 
+     * Based on the configuration provided, this class loads the grammar, initializes the appropriate solver
+     * (e.g., FW, BW, BI with gram/topo driven strategy, in serial or parallel mode), and executes the CFL-reachability algorithm.
      */
     class Solver 
     {
@@ -48,7 +46,7 @@ namespace gracfl
     public:
         /**
          * @brief Constructs a new Solver with specified configuration.
-         * @param config Reference to a Config object containing solver settings (graph path, grammar path, mode, threads, etc.).
+         * @param config Reference to a Config object containing solver settings.
          * @throws std::runtime_error if grammar or graph cannot be loaded.
          */
         Solver(Config& config);
@@ -63,11 +61,19 @@ namespace gracfl
         /**
          * @brief Executes the CFL-reachability algorithm on the processed graph.
          *
-         * Depending on the model (gracfl or base) and mode (serial or parallel),
          * runs the appropriate solver routine to compute reachable pairs.
          */
         void solve();
 
-        std::vector<std::vector<std::unordered_set<ull>>>& getGraph();
+        /**
+         * @brief Provides access to the graph reachability results stored inside the solver.
+         * 
+         * This allows inspection or post-processing of the reachability sets computed
+         * by the selected solver.
+         * 
+         * @return Reference to the 2D vector of unordered sets representing reachable nodes per label. The first index is the vertex ID,
+         *         and the second index is the label ID. Each unordered set contains the reachable vertex IDs.
+         */
+        std::vector<std::vector<std::unordered_set<ull>>> getGraph();
     };
 }

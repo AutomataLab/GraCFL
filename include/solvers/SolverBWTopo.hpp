@@ -12,30 +12,44 @@ namespace gracfl
 {
     /**
      * @class SolverBWTopo
-     * @brief  Bidirectional CFL-reachability graph implementation and analysis using grammar-driven travesal and sliding pointers.
-     * 
-     * Inherits from Graph and adds support for bidirectional edge derivations.
-     * Maintains separate out-edges and in-edges adjacency lists, as well as a hashset to avoid duplicates.
+     * @brief Backward topological CFL solver using 2D incoming edge graph.
+     *
+     * This solver applies topological processing strategies to perform context-free language
+     * reachability analysis in the backward direction, operating on a Graph2DIn structure.
      */
     class SolverBWTopo : public SolverBase
     {
     protected:
-        Grammar& grammar_;
-        Graph2DIn* graph_;
+        Grammar& grammar_;  ///< Reference to the grammar containing CFL production rules.
+        Graph2DIn* graph_;  ///< Pointer to the 2D incoming edge graph representation.
     public:
+        /**
+         * @brief Constructor for SolverBWTopo.
+         * @param graphfilepath Path to the input graph file.
+         * @param grammar Reference to the Grammar object for rule processing.
+         */
         SolverBWTopo(std::string graphfilepath, Grammar& grammar);
+
+        /**
+         * @brief Destructor.
+         */
         ~SolverBWTopo();
 
         /**
-         * @brief Executes the full bidirectional CFL-reachability analysis.
-         * @param grammar Grammar rules for generating new edges.
+         * @brief Executes the main CFL solving loop until convergence is reached.
          */
         void runCFL() override;
 
         /**
-         * @brief Performs one iteration of edge derivation.
-         * @param grammar   Grammar rules for edge derivations.
-         * @param terminate Flag set to false if new edges were added.
+         * @brief Executes one iteration of the CFL solving process using topological rule evaluation.
+         *
+         * @param inEdges Incoming labeled neighbor vectors (used for traversal).
+         * @param inHashset Reachability set in backward form (label × node → {source nodes}).
+         * @param grammar2index unary grammar rules.
+         * @param grammar3index binary grammar rules.
+         * @param labelSize Total number of symbols.
+         * @param nodeSize Total number of nodes in the graph.
+         * @param terminate Flag indicating whether convergence has been reached.
          */
         void runSingleIteration(
             std::vector<TemporalVectorWithLbldVtx>& inEdges,
@@ -46,14 +60,20 @@ namespace gracfl
             uint nodeSize,
             bool& terminate);
 
-        /**
-         * @brief Adds self-loop edges (epsilon rules) for all nodes.
-         * @param grammar Grammar rules for edge derivations.
+         /**
+         * @brief Adds self-loop epsilon edges to support epsilon productions.
          */
         void addSelfEdges();
 
-        std::vector<std::vector<std::unordered_set<ull>>>& getGraph() { return graph_->getInHashset(); }
+        std::vector<std::vector<std::unordered_set<ull>>> getGraph() override { 
+            std::vector<std::vector<std::unordered_set<ull>>> outHashset = convertInHashsetToOutHashset(graph_->getInHashset());
+            return outHashset; 
+        }
 
+        /**
+         * @brief Retrieves the total number of CFL-reachable edges in the graph.
+         * @return Number of reachable edges.
+         */
         ull getEdgeCount() override;
     };
 }

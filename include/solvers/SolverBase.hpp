@@ -20,36 +20,70 @@ namespace gracfl
 {
     /**
      * @class SolverBase
-     * @brief Encapsulates configuration, graph loading, and execution of CFL-reachability analysis.
+     * @brief Base class for all CFL solver variants in the GraCFL framework.
      *
-     * Reads a normalized context-free grammar and graph according to provided configuration,
-     * then applies the chosen CFL-reachability algorithm (BI, BW, or FW) in serial
-     * or parallel mode.
+     * Provides a common interface for solving context-free language (CFL) reachability problems
      */
     class SolverBase 
     {
     public:
         /**
-         * @brief Constructs a new SolverBase with specified configuration.
-         * @param config Reference to a Config object containing solver settings (graph path, grammar path, mode, threads, etc.).
-         * @throws std::runtime_error if grammar or graph cannot be loaded.
+         * @brief Default constructor.
          */
         SolverBase() = default;
 
         /**
-         * @brief Destructor: releases any allocated grammar or graph resources.
+         * @brief Default constructor.
          */
         virtual ~SolverBase() = default;
 
         /**
-         * @brief Executes the CFL-reachability algorithm on the processed graph.
-         *
-         * Depending on the model (gracfl or base) and mode (serial or parallel),
-         * runs the appropriate solver routine to compute reachable pairs.
+         * @brief Pure virtual function to run the CFL solver.
          */
         virtual void runCFL() = 0;
 
+        /**
+         * @brief Pure virtual function to retrieve the total number of edges discovered/processed.
+         * @return Total number of CFL-reachable edges in the graph.
+         */
         virtual ull getEdgeCount() = 0;
-        // virtual std::vector<std::vector<std::unordered_set<ull>>>& getHashset() = 0;
+    
+         /**
+         * @brief Pure virtual function to retrieve the final graph as a 2D vector of unordered_sets.
+         * @return The graph in vertex and label indexed-wise outgoing adjacency list format.
+         */
+        virtual std::vector<std::vector<std::unordered_set<ull>>> getGraph() = 0;
+
+        /**
+         * @brief Converts an incoming edge hashset (inHashset) to an outgoing edge hashset (outHashset).
+         *
+         * Useful when a backward traversal has been executed and a forward representation is needed.
+         *
+         * @param inHashset A 2D vector representing incoming edges: node × label → {source nodes}.
+         * @return A 2D vector representing outgoing edges: node × label → {destination nodes}.
+         */
+        std::vector<std::vector<std::unordered_set<ull>>> convertInHashsetToOutHashset(
+            std::vector<std::vector<std::unordered_set<ull>>>& inHashset
+        )
+        {
+            std::vector<std::vector<std::unordered_set<ull>>> outHashset(inHashset.size());
+            for (uint i = 0; i < inHashset.size(); i++)
+            {
+                outHashset[i].resize(inHashset[i].size());
+            }
+
+            for (uint i = 0; i < inHashset.size(); i++)
+            {
+                for (uint j = 0; j < inHashset[i].size(); j++)
+                {
+                    for (auto& elem : inHashset[i][j])
+                    {
+                        outHashset[i][elem].insert(j);
+                    }
+                }
+            }
+
+            return outHashset;
+        }
     };
 }

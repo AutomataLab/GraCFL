@@ -8,7 +8,7 @@ namespace gracfl
 {
     Solver::Solver(Config& config)
     : config_(config)
-    , grammar_(new Grammar(config.grammarFilepath_))  
+    , grammar_(new Grammar(config.grammarFilepath))  
     {
        solver_ = selectSolver();
        if (solver_ == nullptr)
@@ -24,47 +24,45 @@ namespace gracfl
 
     SolverBase* Solver::selectSolver() 
     {
-        if (config_.model_ == "gracfl") {
-            if (config_.mode_ == "serial") {
-                if (config_.direct_ == "fw") {
-                    if (config_.strategy_ == "gram-driven") {
-                        return new SolverFWGram(config_.graphFilepath_, *grammar_);
-                    } else if (config_.strategy_ == "topo-driven") {
-                        return new SolverFWTopo(config_.graphFilepath_, *grammar_);
-                    }
-                }
-                else if (config_.direct_ == "bw") {
-                    if (config_.strategy_ == "gram-driven") {
-                        return new SolverBWGram(config_.graphFilepath_, *grammar_);
-                    } else if (config_.strategy_ == "topo-driven") {
-                        return new SolverBWTopo(config_.graphFilepath_, *grammar_);
-                    }
-                }
-                else if (config_.direct_ == "bi") {
-                    if (config_.strategy_ == "gram-driven") {
-                        return new SolverBIGram(config_.graphFilepath_, *grammar_);
-                    } else if (config_.strategy_ == "topo-driven") {
-                        return new SolverBITopo(config_.graphFilepath_, *grammar_);
-                    }
-                }                        
-            } 
-            else if (config_.mode_ == "parallel") {
-                if (config_.direct_ == "fw") {
-                    if (config_.strategy_ == "gram-driven") {
-                        return new SolverFWGramParallel(config_.graphFilepath_, *grammar_, config_.threads_);
-                    } else if (config_.strategy_ == "topo-driven") {
-                        return new SolverFWTopoParallel(config_.graphFilepath_, *grammar_, config_.threads_);
-                    }
-                }
-                else if (config_.direct_ == "bw") {
-                    if (config_.strategy_ == "gram-driven") {
-                        return new SolverBWGramParallel(config_.graphFilepath_, *grammar_, config_.threads_);
-                    } else if (config_.strategy_ == "topo-driven") {
-                        return new SolverBWTopoParallel(config_.graphFilepath_, *grammar_, config_.threads_);
-                    }
+        if (config_.executionMode == "serial") {
+            if (config_.traversalDirection == "fw") {
+                if (config_.processingStrategy == "gram-driven") {
+                    return new SolverFWGram(config_.graphFilepath, *grammar_);
+                } else if (config_.processingStrategy == "topo-driven") {
+                    return new SolverFWTopo(config_.graphFilepath, *grammar_);
                 }
             }
+            else if (config_.traversalDirection == "bw") {
+                if (config_.processingStrategy == "gram-driven") {
+                    return new SolverBWGram(config_.graphFilepath, *grammar_);
+                } else if (config_.processingStrategy == "topo-driven") {
+                    return new SolverBWTopo(config_.graphFilepath, *grammar_);
+                }
+            }
+            else if (config_.traversalDirection == "bi") {
+                if (config_.processingStrategy == "gram-driven") {
+                    return new SolverBIGram(config_.graphFilepath, *grammar_);
+                } else if (config_.processingStrategy == "topo-driven") {
+                    return new SolverBITopo(config_.graphFilepath, *grammar_);
+                }
+            }                        
         } 
+        else if (config_.executionMode == "parallel") {
+            if (config_.traversalDirection == "fw") {
+                if (config_.processingStrategy == "gram-driven") {
+                    return new SolverFWGramParallel(config_.graphFilepath, *grammar_, config_.numThreads);
+                } else if (config_.processingStrategy == "topo-driven") {
+                    return new SolverFWTopoParallel(config_.graphFilepath, *grammar_, config_.numThreads);
+                }
+            }
+            else if (config_.traversalDirection == "bw") {
+                if (config_.processingStrategy == "gram-driven") {
+                    return new SolverBWGramParallel(config_.graphFilepath, *grammar_, config_.numThreads);
+                } else if (config_.processingStrategy == "topo-driven") {
+                    return new SolverBWTopoParallel(config_.graphFilepath, *grammar_, config_.numThreads);
+                }
+            }
+        }
         return nullptr;
     }
 
@@ -96,5 +94,10 @@ namespace gracfl
         std::cout << "Total Time\t= " << elapsedSeconds.count() << " seconds" << std::endl;
 
         std::cout << "---------------END---------------------\n\n\n" << std::endl;
+    }
+
+    std::vector<std::vector<std::unordered_set<ull>>> Solver::getGraph()
+    {
+        return solver_->getGraph();
     }
 }

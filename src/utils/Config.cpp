@@ -1,150 +1,252 @@
 #include "utils/Config.hpp"
-#include <string>              
-#include <unordered_map>       
-#include <stdexcept>           
-#include <iostream> 
+#include <fstream>
+#include <algorithm>
+#include <cctype>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
 #include <omp.h>
 
-namespace gracfl
-{
-    Config::Config(int argc, char* argv[])
-    {
-        parseArgs(argc, argv);
+
+// # Config – one key = value per line
+// # Required inputs:
+// graphFilePath    = /home/user/data/graph.edgelist
+// grammarFilePath  = /home/user/data/grammar.cfg
+
+// # Optional settings (defaults shown):
+// executionMode     = parallel          # serial or parallel
+// traversalDirection   = fw                # fw, bw, or bi
+// processingStrategy = topo-driven       # gram-driven or topo-driven
+// numThreads  = 8                 # positive integer, only used in parallel mode
+
+
+namespace gracfl {
+
+// helper to trim both ends in-place
+static void trim(std::string& s) {
+    auto not_space = [](int ch){ return !std::isspace(ch); };
+    s.erase(s.begin(),
+            std::find_if(s.begin(), s.end(), not_space));
+    s.erase(std::find_if(s.rbegin(), s.rend(), not_space).base(),
+            s.end());
+}
+
+Config::Config(const std::string& filename) {
+    loadFromFile(filename);
+}
+
+
+void Config::loadFromFile(const std::string& filename) {
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) {
+        throw std::runtime_error("Failed to open config file: " + filename);
     }
-    
-    void Config::parseArgs(int argc, char* argv[]) 
-    {
-        // 1) build flag→value map
-        std::unordered_map<std::string, std::string> kv;
-        for (int i = 1; i < argc; ++i) {
-            std::string a = argv[i];
-            if (a.rfind("--", 0) != 0)
-                throw std::runtime_error("Unknown argument: " + a);
-    
-            std::string val;
-            if (i+1 < argc && std::string(argv[i+1]).rfind("--",0) != 0)
-                val = argv[++i];
-            kv[a] = val;
-        }
-    
-        auto get = [&](const char* key){
-            auto it = kv.find(key);
-            return it==kv.end() ? std::string() : it->second;
-        };
 
-        // required file paths: graph and grammar (highest priority)
-        graphFilepath_ = get("--graph");
-        if (graphFilepath_.empty()) {
-            throw std::runtime_error("--graph is required");
-        }
+    // no user value → default to OpenMP max
+    int omp_thr = omp_get_max_threads();
+    numThreads = (omp_thr > 0 ? omp_thr : 1);
 
-        grammarFilepath_ = get("--grammar");
-        if (grammarFilepath_.empty()) {
-            throw std::runtime_error("--grammar is required");
-        }
-    
-        // model
-        model_ = get("--model");
-        if (model_.empty()) {
-            model_ = "gracfl";
-        } else if (model_ != "gracfl" && model_ != "base") {
-            throw std::runtime_error("Invalid --model '" + model_ + "'");
-        }
+    std::string line;
+    while (std::getline(ifs, line)) {
+        trim(line);
+        if (line.empty() || line[0] == '#')
+            continue;
 
-        // mode
-        mode_ = get("--mode");
-        if (mode_.empty()) {
-            mode_ = "serial";
-        } else if (mode_ != "serial" && mode_ != "parallel") {
-            throw std::runtime_error(
-              "Invalid --mode '" + mode_ + "'. Allowed: serial, parallel");
+        auto pos = line.find('=');
+        if (pos == std::string::npos)
+            continue;
+
+        std::string key = line.substr(0, pos);
+        std::string val = line.substr(pos + 1);
+        trim(key);
+        trim(val);
+
+        if (key == "graphFilepath") {
+            graphFilepath = val;
         }
-    
-        // direct
-        direct_ = get("--direct");
-        if (direct_.empty()) {
-            // default unless base
-            if (model_ == "base")
-                throw std::runtime_error(
-                  "--direct is required when model='base'");
-            if (mode_ == "parallel") {
-                direct_ = "fw";
-            } else {
-                direct_ = "bi";
+        else if (key == "grammarFilepath") {
+            grammarFilepath = val;
+        }
+        else if (key == "executionMode") {
+            executionMode = val;
+        }
+        else if (key == "traversalDirection") {
+            traversalDirection = val;
+        }
+        else if (key == "processingStrategy") {
+            processingStrategy = val;
+        }
+        else if (key == "numThreads") {
+            try {
+                numThreads = static_cast<unsigned>(std::stoul(val));
+            } catch (...) {
+                throw std::runtime_error("Invalid numThreads value: " + val);
             }
         }
-        if (direct_ != "fw" && direct_ != "bw" && direct_ != "bi") {
-            throw std::runtime_error(
-              "Invalid --direct '" + direct_ + "'. Allowed: fw, bw, bi");
-        }
-    
-        // ** strategy **
-        strategy_ = get("--strategy");
-        if (strategy_.empty()) {
-            strategy_ = "gram-driven";
-        } else if (strategy_ != "gram-driven" && strategy_ != "topo-driven") {
-            throw std::runtime_error(
-                "Invalid --strategy '" + strategy_ + "'. Allowed: gram-driven, topo-driven");
-        }
-        
-        // threads
-        threads_ = 1;
-        if (mode_ == "parallel") {
-            auto ts = get("--thread");
-            if (ts.empty()) {
-                // default to system concurrency
-                // unsigned hc = std::thread::hardware_concurrency();
-                // use OpenMP's default thread count
-                int omp_thr = omp_get_max_threads();
-                threads_ = (omp_thr>0 ? omp_thr : 1);
-            } else {
-                try {
-                    int x = std::stoi(ts);
-                    if (x <= 0) throw std::invalid_argument("<=0");
-                    threads_ = unsigned(x);
-                } catch (...) {
-                    throw std::runtime_error(
-                      "Invalid --thread '" + ts + "'. Must be >0");
-                }
-            }
+        else {
+            throw std::runtime_error("Unknown config key: " + key);
         }
     }
 
-    void Config::printUsage(const char* prog) {
-        std::cerr
-          << "Usage:\n"
-          << "  " << prog
-          << " --graph <graphfile> --grammar <grammarfile>\n"
-          << "        [--model <gracfl|base>]\n"
-          << "        [--direct <fw|bw|bi>]\n"
-          << "        [--mode <serial|parallel>]\n"
-          << "        [--thread <n>]\n\n"
-          << "Required:\n"
-          << "  --graph    Path to the input graph file\n"
-          << "  --grammar  Path to the grammar file\n\n"
-          << "Defaults (when optional flags omitted):\n"
-          << "  model   = gracfl\n"
-          << "  direct  = bi\n"
-          << "  mode    = serial\n"
-          << "  threads = 1 (or max available hardware threads if mode=parallel and --thread not set)\n\n"
-          << "Rules:\n"
-          << "  • --graph and --grammar are mandatory\n"
-          << "  • if model==base, must supply --direct\n"
-          << "  • direct defaults to bi otherwise (validate fw|bw|bi)\n"
-          << "  • mode defaults to serial (validate serial|parallel)\n"
-          << "  • if mode==parallel & no --thread, use max available hardware threads\n";
+    // validate required fields
+    if (graphFilepath.empty())
+        throw std::runtime_error("Config file must specify 'graphFilepath = <path>'");
+    if (grammarFilepath.empty())
+        throw std::runtime_error("Config file must specify 'grammarFilepath = <path>'");
+
+    // apply defaults & validate
+    if (executionMode.empty())
+        executionMode = "serial";
+    else if (executionMode != "serial" && executionMode != "parallel")
+        throw std::runtime_error("executionMode must be 'serial' or 'parallel'");
+
+    if (traversalDirection.empty())
+        traversalDirection = (executionMode == "parallel" ? "fw" : "bi");
+    else if (traversalDirection != "fw" &&
+             traversalDirection != "bw" &&
+             traversalDirection != "bi")
+    {
+        throw std::runtime_error("traversalDirection must be 'fw', 'bw', or 'bi'");
     }
 
-    void Config::printConfigs() {
-        // print all the settings up front
-        std::cout << "Configuration:\n"
-                  << "  graph   = " << graphFilepath_ << "\n"
-                  << "  grammar = " << grammarFilepath_ << "\n"
-                  << "  model   = " << model_ << "\n"
-                  << "  direct  = " << direct_ << "\n"
-                  << "  mode    = " << mode_ << "\n";
-        if (mode_ == "parallel")
-            std::cout << "  threads = " << threads_ << "\n";
-        std::cout << std::endl;
+    if (processingStrategy.empty())
+        processingStrategy = "gram-driven";
+    else if (processingStrategy != "gram-driven" &&
+             processingStrategy != "topo-driven")
+    {
+        throw std::runtime_error("processingStrategy must be 'gram-driven' or 'topo-driven'");
+    }
+
+    if (executionMode == "parallel" && numThreads <= 0) {
+        throw std::runtime_error("numThreads must be a positive integer");
     }
 }
+
+void Config::parseArgs(int argc, char* argv[]) {
+    std::unordered_map<std::string, std::string> kv;
+    for (int i = 1; i < argc; ++i) {
+        std::string a = argv[i];
+        if (a.rfind("--", 0) != 0)
+            throw std::runtime_error("Unknown argument: " + a);
+
+        std::string val;
+        if (i+1 < argc && std::string(argv[i+1]).rfind("--",0) != 0)
+            val = argv[++i];
+        kv[a] = val;
+    }
+    auto get = [&](const char* key){
+        auto it = kv.find(key);
+        return it == kv.end() ? std::string() : it->second;
+    };
+
+    // required file paths
+    {
+        auto v = get("--graphFilepath");
+        if (!v.empty()) graphFilepath = v;
+        if (graphFilepath.empty())
+            throw std::runtime_error("--graphFilepath is required");
+    }
+    {
+        auto v = get("--grammarFilepath");
+        if (!v.empty()) grammarFilepath = v;
+        if (grammarFilepath.empty())
+            throw std::runtime_error("--grammarFilepath is required");
+    }
+
+    // execution mode
+    {
+        auto v = get("--executionMode");
+        if (!v.empty()) executionMode = v;
+        if (executionMode.empty()) executionMode = "serial";
+        else if (executionMode!="serial" && executionMode!="parallel")
+            throw std::runtime_error(
+              "Invalid --executionMode '" + executionMode + "'. Allowed: serial, parallel");
+    }
+
+    // traversal direction
+    {
+        auto v = get("--traversalDirection");
+        if (!v.empty()) traversalDirection = v;
+        if (traversalDirection.empty())
+            traversalDirection = (executionMode=="parallel" ? "fw" : "bi");
+        if (traversalDirection!="fw" &&
+            traversalDirection!="bw" &&
+            traversalDirection!="bi")
+        {
+            throw std::runtime_error(
+              "Invalid --traversalDirection '" + traversalDirection + 
+              "'. Allowed: fw, bw, bi");
+        }
+    }
+
+    // derivation strategy
+    {
+        auto v = get("--processingStrategy");
+        if (!v.empty()) processingStrategy = v;
+        if (processingStrategy.empty()) processingStrategy = "gram-driven";
+        else if (processingStrategy!="gram-driven" &&
+                 processingStrategy!="topo-driven")
+        {
+            throw std::runtime_error(
+              "Invalid --processingStrategy '" + processingStrategy +
+              "'. Allowed: gram-driven, topo-driven");
+        }
+    }
+
+    // threads
+    if (executionMode == "parallel") {
+        auto ts = get("--numThreads");
+        if (!ts.empty()) {
+            try {
+                int x = std::stoi(ts);
+                if (x <= 0) throw 0;
+                numThreads = static_cast<unsigned>(x);
+            } catch (...) {
+                throw std::runtime_error(
+                  "Invalid --numThreads '" + ts + "'. Must be >0");
+            }
+        } else {
+            int omp_thr = omp_get_max_threads();
+            numThreads = (omp_thr > 0 ? omp_thr : 1);
+        }
+    }
+}
+
+void Config::printUsage(const char* prog) {
+    std::cerr
+      << "This program reads all settings from a plain-text file (default name: 'Config').\n"
+      << "The file must contain one key = value per line. Supported keys (must match Config class fields):\n"
+      << "  graphFilepath      = <path to graph file>            (required)\n"
+      << "  grammarFilepath    = <path to grammar file>          (required)\n"
+      << "  executionMode      = serial | parallel               (default: serial)\n"
+      << "  traversalDirection = fw | bw | bi                    (default: bi, or fw if executionMode=parallel)\n"
+      << "  processingStrategy = gram-driven | topo-driven       (default: gram-driven)\n"
+      << "  numThreads         = <positive integer>              (default: 1, or max threads if parallel)\n\n"
+      << "\n"
+      << "----------------------------------------------\n"
+      << "Example 'Config' file:\n"
+      << "----------------------------------------------\n"
+      << "# solver configuration using class field names\n"
+      << "graphFilepath      = /home/user/data/graph.edgelist\n"
+      << "grammarFilepath    = /home/user/data/grammar.cfg\n"
+      << "executionMode      = parallel\n"
+      << "traversalDirection = fw\n"
+      << "processingStrategy = gram-driven\n"
+      << "numThreads         = 32\n"
+      << "----------------------------------------------\n";
+}
+
+
+void Config::printConfigs() const {
+    std::cout << "Configuration:\n"
+              << "  graphFilepath       = " << graphFilepath      << "\n"
+              << "  grammarFilepath     = " << grammarFilepath    << "\n"
+              << "  executionMode       = " << executionMode      << "\n"
+              << "  traversalDirection  = " << traversalDirection << "\n"
+              << "  processingStrategy  = " << processingStrategy << "\n";
+    if (executionMode == "parallel")
+        std::cout << "  numThreads          = " << numThreads << "\n";
+    std::cout << std::endl;
+}
+
+} // namespace gracfl
