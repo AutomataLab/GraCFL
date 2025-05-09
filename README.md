@@ -113,93 +113,93 @@ S    A    B         # binary rule
 ```
 
 ## GraCFL as a Library
-### Settings
-GraCFL can be used as a library in an external project. In order to use GraCFL as a library first clone GraCFL in the external project's root directory.
+1. Clone into your project
+    In your external project’s root directory:
+    ```text
+    https://github.com/AutomataLab/GraCFL.git
+    ```
+2. CMake configuration
+    In your `CMakeLists.txt`, add GraCFL as a subdirectory and link against its static library:
+    ```cmake
+    # Add the GraCFL library as a subdirectory
+    add_subdirectory(GraCFL)
+    ```
+    ```
+    # Link against the static library
+    target_link_libraries(run_graCFL PRIVATE graCFLlib)
+    ```
 
-```text
-https://github.com/AutomataLab/GraCFL.git
-```
+    An Example `CMakeLists.txt` of an external project that uses GraCFL as a library
+    ```cmake
+    cmake_minimum_required(VERSION 3.15)
+    project(ExternalGraCFLUser)
+    
+    # Add the GraCFL library as a subdirectory
+    add_subdirectory(GraCFL)
+    
+    # Build your executable
+    add_executable(ExternalGraCFLUserExecutable main.cpp)
+    
+    # Link against the static library
+    target_link_libraries(run_graCFL PRIVATE graCFLlib)
+    ```
+    
+3. Sample usage in code
 
-After that add the following lines in your CMakeLists.txt
-```
-# Add the GraCFL library as a subdirectory
-add_subdirectory(GraCFL)
-```
-```
-# Link against the static library
-target_link_libraries(run_graCFL PRIVATE graCFLlib)
-```
-
-An Example CMakeLists.txt of an external project that uses GraCFL as a library
-```text
-cmake_minimum_required(VERSION 3.15)
-project(ExternalGraCFLUser)
-
-# Add the GraCFL library as a subdirectory
-add_subdirectory(GraCFL)
-
-# Build your executable
-add_executable(ExternalGraCFLUserExecutable main.cpp)
-
-# Link against the static library
-target_link_libraries(run_graCFL PRIVATE graCFLlib)
-```
-### Code Example:
-
-```cpp
-// include this header if you want to print the exception message
-#include <iostream>
-
-// As the GraCFL apis throw exceptions, we need to include the stdexcept header
-#include <stdexcept>
-
-/*
-* include these two headers to use the GraCFL apis
-*/
-#include "solvers/Solver.hpp"
-#include "utils/Config.hpp"
-
-/*
-* @brief Example function demonstrating the usage of the GraCFL api.
-* 
-* This function initializes a configuration object, creates a Solver instance,
-* and executes the CFL-reachability analysis. It handles exceptions and prints
-* usage instructions in case of errors.
-* Note: The function name 'example' is just a placeholder and can be changed as needed.
-* The code snippet below can be added to a larger program or used as a standalone example.
-* It is assumed that the necessary headers and namespaces are included at the beginning of the file.
-*/      
-void example() {
-    try {
-        // Create a configuration object
-        gracfl::Config config;
-        // Set the configuration parameters
-
-        // graphFilepath and grammarFilepath are required parameters
-        config.graphFilepath = "path/to/graph.edgelist";
-        config.grammarFilepath = "path/to/grammar.cfg";
-
-        // Optional parameters
-        config.executionMode = "parallel"; // or "serial"
-        config.traversalDirection = "fw"; // or "bw" or "bi"
-        config.processingStrategy = "gram-driven"; // or "topo-driven"
-        config.numThreads = 32; // Number of threads for parallel execution
-
-        // Print the configuration settings
-        config.printConfigs();
-        // Create a Solver instance with the configuration
-        gracfl::Solver* solver = new gracfl::Solver(config);
-        // Execute the CFL-reachability analysis
-        solver->solve();
-        // Clean up the solver instance
-        delete solver;
-    } catch (const std::exception& e) {
-        // Handle exceptions and print error messages
-        std::cerr << "Error: " << e.what() << "\n\n";
-        // Print usage instructions for the GraCFL API
-        gracfl::Config::printUsage("example");
+    ```cpp
+    // include this header if you want to print the exception message
+    #include <iostream>
+    
+    // As the GraCFL apis throw exceptions, we need to include the stdexcept header
+    #include <stdexcept>
+    
+    /*
+    * include these two headers to use the GraCFL apis
+    */
+    #include "solvers/Solver.hpp"
+    #include "utils/Config.hpp"
+    
+    /*
+    * @brief Example function demonstrating the usage of the GraCFL api.
+    * 
+    * This function initializes a configuration object, creates a Solver instance,
+    * and executes the CFL-reachability analysis. It handles exceptions and prints
+    * usage instructions in case of errors.
+    * Note: The function name 'example' is just a placeholder and can be changed as needed.
+    * The code snippet below can be added to a larger program or used as a standalone example.
+    * It is assumed that the necessary headers and namespaces are included at the beginning of the file.
+    */      
+    void example() {
+        try {
+            // Create a configuration object
+            gracfl::Config config;
+            // Set the configuration parameters
+    
+            // graphFilepath and grammarFilepath are required parameters
+            config.graphFilepath = "path/to/graph.edgelist";
+            config.grammarFilepath = "path/to/grammar.cfg";
+    
+            // Optional parameters
+            config.executionMode = "parallel"; // or "serial"
+            config.traversalDirection = "fw"; // or "bw" or "bi"
+            config.processingStrategy = "gram-driven"; // or "topo-driven"
+            config.numThreads = 32; // Number of threads for parallel execution
+    
+            // Print the configuration settings
+            config.printConfigs();
+            // Create a Solver instance with the configuration
+            gracfl::Solver* solver = new gracfl::Solver(config);
+            // Execute the CFL-reachability analysis
+            solver->solve();
+            // Clean up the solver instance
+            delete solver;
+        } catch (const std::exception& e) {
+            // Handle exceptions and print error messages
+            std::cerr << "Error: " << e.what() << "\n\n";
+            // Print usage instructions for the GraCFL API
+            gracfl::Config::printUsage("example");
+        }
     }
-}
-```
+    ```
 
 
