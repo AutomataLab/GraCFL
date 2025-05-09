@@ -150,11 +150,11 @@ target_link_libraries(run_graCFL PRIVATE graCFLlib)
 // include this header if you want to print the exception message
 #include <iostream>
 
-// As the GraCFL apis throw error, we need to include the stdexcept header
+// As the GraCFL apis throw exceptions, we need to include the stdexcept header
 #include <stdexcept>
 
 /*
-* include this two headers to use the GraCFL api
+* include these two headers to use the GraCFL apis
 */
 #include "solvers/Solver.hpp"
 #include "utils/Config.hpp"
