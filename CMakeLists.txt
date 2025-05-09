@@ -27,8 +27,10 @@ file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 # Find OpenMP
 find_package(OpenMP)
 
-# External jemalloc setup
+# External project support
 include(ExternalProject)
+
+# External jemalloc setup
 find_library(JEMALLOC_LIB jemalloc)
 
 if(NOT JEMALLOC_LIB)
@@ -45,11 +47,14 @@ if(NOT JEMALLOC_LIB)
         PREFIX ${CMAKE_BINARY_DIR}/_deps/jemalloc
     )
 
-    ExternalProject_Get_Property(jemalloc install_dir)
-    set(JEMALLOC_LIB "${CMAKE_BINARY_DIR}/jemalloc_install/lib/libjemalloc.a")
+    # Include jemalloc after install
     include_directories("${CMAKE_BINARY_DIR}/jemalloc_install/include")
-    add_custom_target(libjemalloc DEPENDS ${JEMALLOC_LIB})
+    set(JEMALLOC_LIB "${CMAKE_BINARY_DIR}/jemalloc_install/lib/libjemalloc.a")
     set(JEMALLOC_LIBS ${JEMALLOC_LIB} pthread dl)
+
+    # Dummy CMake target that depends on ExternalProject
+    add_custom_target(libjemalloc)
+    add_dependencies(libjemalloc jemalloc)
 else()
     set(JEMALLOC_LIBS ${JEMALLOC_LIB})
 endif()
@@ -75,33 +80,21 @@ if(NOT TBB_FOUND)
     set(TBB_LIB "${CMAKE_BINARY_DIR}/tbb_install/lib/libtbb${CMAKE_SHARED_LIBRARY_SUFFIX}")
     set(TBB_MALLOC_LIB "${CMAKE_BINARY_DIR}/tbb_install/lib/libtbbmalloc${CMAKE_SHARED_LIBRARY_SUFFIX}")
     set(TBB_MALLOC_PROXY_LIB "${CMAKE_BINARY_DIR}/tbb_install/lib/libtbbmalloc_proxy${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
     include_directories(${TBB_INCLUDE_DIRS})
-    add_custom_target(libTBB DEPENDS ${TBB_LIB} ${TBB_MALLOC_LIB} ${TBB_MALLOC_PROXY_LIB})
+    set(TBB_LIBS ${TBB_LIB} ${TBB_MALLOC_LIB} ${TBB_MALLOC_PROXY_LIB})
+
+    add_custom_target(libTBB)
+    add_dependencies(libTBB tbb)
 else()
-    set(TBB_LIB TBB::tbb)
-    set(TBB_MALLOC_LIB TBB::tbbmalloc)
-    set(TBB_MALLOC_PROXY_LIB TBB::tbbmalloc_proxy)
+    set(TBB_LIBS TBB::tbb TBB::tbbmalloc TBB::tbbmalloc_proxy)
 endif()
 
-# Find all .cpp files in the src directory
-# file(GLOB MAIN_SOURCE
-#     "${SRC_DIR}/main.cpp"
-#     "${SRC_DIR}/*/*.cpp"
-#     "${SRC_DIR}/*/*/*.cpp")
-
-# # Find all sources
+# Collect source files
 file(GLOB_RECURSE ALL_SOURCES "${SRC_DIR}/*.cpp")
 
-# Split sources into library and main
 set(LIB_SOURCES "")
 set(MAIN_SOURCE "")
-
-# file(GLOB LIB_SOURCES
-#     "${SRC_DIR}/*/*.cpp"
-#     "${SRC_DIR}/*/*/*.cpp")
-
-# file(GLOB MAIN_SOURCE
-#     "${SRC_DIR}/main.cpp")
 
 foreach(source_file IN LISTS ALL_SOURCES)
     if(source_file MATCHES "main\\.cpp$")
@@ -115,17 +108,20 @@ endforeach()
 add_library(${LIB_NAME} STATIC ${LIB_SOURCES})
 target_include_directories(${LIB_NAME} PUBLIC ${INCLUDE_DIR})
 
-message(STATUS "→ graCFLlib will compile these sources:\n   ${LIB_SOURCES}")
+# Add dependencies on external builds
+if(TARGET libjemalloc)
+    add_dependencies(${LIB_NAME} libjemalloc)
+endif()
 
+if(TARGET libTBB)
+    add_dependencies(${LIB_NAME} libTBB)
+endif()
+
+# message(STATUS "→ graCFLlib will compile these sources:\n   ${LIB_SOURCES}")
 
 # Link dependencies to the library
 target_link_libraries(${LIB_NAME} PRIVATE ${JEMALLOC_LIBS})
-if(TBB_FOUND)
-    target_link_libraries(${LIB_NAME} PRIVATE TBB::tbb TBB::tbbmalloc TBB::tbbmalloc_proxy)
-else()
-    add_dependencies(${LIB_NAME} libTBB)
-    target_link_libraries(${LIB_NAME} PRIVATE ${TBB_LIB} ${TBB_MALLOC_LIB} ${TBB_MALLOC_PROXY_LIB})
-endif()
+target_link_libraries(${LIB_NAME} PRIVATE ${TBB_LIBS})
 
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${LIB_NAME} PRIVATE OpenMP::OpenMP_CXX)
@@ -134,3 +130,13 @@ endif()
 # Build the executable
 add_executable(${EXE_NAME} ${MAIN_SOURCE})
 target_link_libraries(${EXE_NAME} PRIVATE ${LIB_NAME})
+
+# Ensure executable also depends on jemalloc/TBB builds
+if(TARGET libjemalloc)
+    add_dependencies(${EXE_NAME} libjemalloc)
+endif()
+
+if(TARGET libTBB)
+    add_dependencies(${EXE_NAME} libTBB)
+endif()
+
