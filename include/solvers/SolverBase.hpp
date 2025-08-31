@@ -78,7 +78,7 @@ namespace gracfl
                 {
                     for (auto& elem : inHashset[i][j])
                     {
-                        outHashset[i][elem].insert(j);
+                        outHashset[elem][j].insert(i);
                     }
                 }
             }
