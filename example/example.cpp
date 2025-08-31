@@ -43,11 +43,15 @@ void example() {
         config.printConfigs();
         // Create a Solver instance with the configuration
         gracfl::Solver* solver = new gracfl::Solver(config);
+        // Print label ID to Symbol map
+        solver->printLabelIDToSymbolMap();
         // Execute the CFL-reachability analysis
         solver->solve();
         // Retrieve the CFL-reachability graph:
         // outputCFLGraph[node][label] is the set of all reachable destination node IDs from the source node with the edge label.
         std::vector<std::vector<std::unordered_set<ull>>> outputCFLGraph = solver->getGraph();
+        // Get the labelID (unsigned integer type) to Symbol (string type) Map if needed
+        std::unordered_map<uint, std::string> labelIDToSymbolMap = solver->getLabelIDToSymbolMap();
         // Clean up the solver instance
         delete solver;
     } catch (const std::exception& e) {
